@@ -89,7 +89,7 @@ button:disabled {
   display: block;
   margin-top: 4px;
   color: #5e6c84;
-  font-size: 9px;
+  font-size: 10px;
   font-weight: 700;
   letter-spacing: 3px;
 }
@@ -148,7 +148,7 @@ button:not(:disabled):hover {
 .eyebrow {
   margin: 0 0 14px;
   color: #5268a3;
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.6;
   font-weight: 750;
   letter-spacing: 1.5px;
@@ -208,7 +208,7 @@ h2 {
   border-radius: 6px;
   background: #eef2fb;
   color: #526287;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
 }
 
@@ -269,7 +269,7 @@ h2 {
   gap: 8px;
   margin-bottom: 0;
   color: #5e6c84;
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .trend {
@@ -277,7 +277,7 @@ h2 {
   border-radius: 4px;
   background: #edf1f8;
   color: #56647c;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
 }
 
@@ -296,7 +296,7 @@ h2 {
 }
 
 .small {
-  font-size: 11px;
+  font-size: 13px;
   line-height: 1.75;
 }
 
@@ -321,13 +321,12 @@ h2 {
 
 .section-heading p {
   margin-bottom: 0;
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.6;
 }
 
 .sample-badge {
   background: #f6f8fc;
-  font-size: 10px;
   padding: 6px 8px;
 }
 
@@ -351,7 +350,7 @@ h2 {
 .filter-field label {
   display: block;
   margin-bottom: 7px;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 600;
 }
 
@@ -363,7 +362,7 @@ select {
   border-radius: 6px;
   background: white;
   color: inherit;
-  font-size: 12px;
+  font-size: 14px;
 }
 
 .text-button {
@@ -372,7 +371,7 @@ select {
   border: 0;
   background: transparent;
   color: #385ac7;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
 }
 
@@ -382,7 +381,7 @@ select {
 
 .list-count {
   margin: 17px 0 8px;
-  font-size: 11px;
+  font-size: 13px;
 }
 
 .pokemon-list,
@@ -408,12 +407,12 @@ select {
 
 .pokemon-number {
   color: #5e6c84;
-  font-size: 11px;
+  font-size: 12px;
   font-variant-numeric: tabular-nums;
 }
 
 .pokemon-name {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 650;
   overflow-wrap: anywhere;
 }
@@ -432,7 +431,7 @@ select {
   background: #edf0f6;
   color: #58657a;
   text-align: center;
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 600;
 }
 
@@ -483,7 +482,7 @@ select {
 }
 
 .counter .eyebrow {
-  font-size: 8px;
+  font-size: 11px;
   letter-spacing: 1px;
 }
 
@@ -493,7 +492,7 @@ select {
 
 .counter > .muted {
   margin-bottom: 0;
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.8;
 }
 
@@ -547,7 +546,7 @@ meter::-moz-meter-bar {
 .counter-caption {
   margin: 8px 0 21px;
   color: #5e6c84;
-  font-size: 11px;
+  font-size: 13px;
 }
 
 .reset-counter {
@@ -556,7 +555,7 @@ meter::-moz-meter-bar {
 }
 
 .counter > p.small {
-  font-size: 10px;
+  font-size: 12px;
 }
 
 .field-note {
@@ -579,7 +578,7 @@ meter::-moz-meter-bar {
 
 .field-note p {
   margin-bottom: 0;
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.8;
 }
 
@@ -600,7 +599,7 @@ meter::-moz-meter-bar {
 
 .empty-state p {
   margin-bottom: 7px;
-  font-size: 12px;
+  font-size: 14px;
   line-height: 1.7;
 }
 
@@ -609,7 +608,7 @@ meter::-moz-meter-bar {
   margin-top: 30px;
   border-top: 1px solid #e1e6ef;
   color: #5e6c84;
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.7;
 }
 
@@ -710,7 +709,7 @@ meter::-moz-meter-bar {
   }
 
   .theme-button {
-    font-size: 11px;
+    font-size: 13px;
     padding: 9px;
     gap: 5px;
   }
@@ -740,7 +739,6 @@ meter::-moz-meter-bar {
   }
 
   .brand-caption {
-    font-size: 7px;
     letter-spacing: 2px;
   }
 
@@ -753,7 +751,6 @@ meter::-moz-meter-bar {
   }
 
   .eyebrow {
-    font-size: 9px;
     letter-spacing: 1px;
   }
 
@@ -789,7 +786,6 @@ meter::-moz-meter-bar {
   .type-badge {
     min-width: 0;
     padding: 4px 5px;
-    font-size: 9px;
   }
 
   .filter-bar {
@@ -800,6 +796,10 @@ meter::-moz-meter-bar {
 
   .filter-field {
     flex-grow: 1;
+  }
+
+  select {
+    font-size: 16px;
   }
 
   .page-footer {

@@ -14,18 +14,10 @@ export function ThemeToggle({ children }: ThemeToggleProps) {
           type="button"
           className="theme-button"
           aria-pressed={isDark}
-          aria-label={isDark ? 'Увімкнути світлу тему' : 'Увімкнути темну тему'}
           onClick={() => setIsDark((current) => !current)}
         >
-          {isDark ? (
-            <>
-              <span aria-hidden="true">☀</span> Світла тема
-            </>
-          ) : (
-            <>
-              <span aria-hidden="true">☾</span> Темна тема
-            </>
-          )}
+          <span aria-hidden="true">{isDark ? '☾' : '☀'}</span>
+          Темна тема
         </button>
       </div>
       {children}

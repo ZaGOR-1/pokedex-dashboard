@@ -33,7 +33,7 @@ describe('App', () => {
     );
     await user.selectOptions(screen.getByRole('combobox'), 'water');
     await user.click(
-      screen.getByRole('button', { name: 'Увімкнути темну тему' }),
+      screen.getByRole('button', { name: 'Темна тема', pressed: false }),
     );
     expect(screen.getByLabelText('Кількість у команді')).toHaveTextContent('1');
     expect(screen.getByRole('combobox')).toHaveValue('water');
@@ -47,8 +47,9 @@ describe('App', () => {
     ).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Скинути фільтр' }));
     expect(screen.getByLabelText('Кількість у команді')).toHaveTextContent('1');
-    expect(
-      screen.getByRole('button', { name: 'Увімкнути світлу тему' }),
-    ).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: 'Темна тема' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
   });
 });
