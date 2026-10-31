@@ -1,0 +1,13 @@
+node_modules/
+dist/
+coverage/
+.vite/
+.storybook-cache/
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+.vscode/
+.idea/
+_vite_init/
