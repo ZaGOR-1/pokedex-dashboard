@@ -230,7 +230,7 @@ h2 {
 
 .kpi-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 18px;
 }
 
@@ -293,6 +293,14 @@ h2 {
 
 .summary-note {
   margin: 12px 0 27px;
+}
+
+.kpi-description {
+  margin-bottom: 0;
+}
+
+a {
+  color: inherit;
 }
 
 .small {
@@ -384,25 +392,46 @@ select {
   font-size: 13px;
 }
 
-.pokemon-list,
 .type-list {
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
-.pokemon-row {
-  display: grid;
-  grid-template-columns: 55px minmax(0, 1fr) auto;
-  align-items: center;
-  min-height: 56px;
-  column-gap: 12px;
-  padding: 8px 6px;
-  border-bottom: 1px solid #edf0f5;
+.table-scroll {
+  max-width: 100%;
+  overflow-x: auto;
 }
 
-.pokemon-row:last-child {
-  border-bottom: 0;
+.pokemon-table {
+  width: 100%;
+  min-width: 530px;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+
+.pokemon-table caption {
+  padding: 8px 0 14px;
+  text-align: left;
+  line-height: 1.7;
+}
+
+.pokemon-table td,
+.pokemon-table th {
+  padding: 13px 6px;
+  border-bottom: 1px solid #e1e6ef;
+}
+
+.sort-button {
+  min-height: 40px;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  padding: 6px 3px;
+  background: transparent;
+  color: inherit;
+  font-weight: 700;
 }
 
 .pokemon-number {
@@ -421,7 +450,7 @@ select {
   display: flex;
   flex-wrap: wrap;
   gap: 5px;
-  justify-content: end;
+  justify-content: start;
 }
 
 .type-badge {
@@ -656,7 +685,8 @@ meter::-moz-meter-bar {
 
 [data-theme='dark'] .page-header,
 [data-theme='dark'] .page-footer,
-[data-theme='dark'] .pokemon-row {
+[data-theme='dark'] .pokemon-table td,
+[data-theme='dark'] .pokemon-table th {
   border-color: #303d54;
 }
 
@@ -686,15 +716,8 @@ meter::-moz-meter-bar {
     padding: 20px;
   }
 
-  .pokemon-row {
-    grid-template-columns: 43px minmax(0, 1fr);
-    row-gap: 6px;
-    padding: 12px 0;
-  }
-
-  .type-list {
-    grid-column: 2;
-    justify-content: start;
+  .kpi-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -761,7 +784,7 @@ meter::-moz-meter-bar {
 
   .kpi-grid,
   .dashboard-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
     gap: 12px;
   }
 
@@ -771,16 +794,6 @@ meter::-moz-meter-bar {
 
   .kpi-value {
     font-size: 32px;
-  }
-
-  .pokemon-row {
-    grid-template-columns: 43px minmax(0, 1fr) auto;
-    column-gap: 6px;
-  }
-
-  .type-list {
-    grid-column: auto;
-    justify-content: end;
   }
 
   .type-badge {

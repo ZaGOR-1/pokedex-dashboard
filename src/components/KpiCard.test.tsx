@@ -32,4 +32,17 @@ describe('KpiCard', () => {
     expect(screen.getByText('12 Pokémon')).toBeInTheDocument();
     expect(screen.getByText('демонстраційна зміна')).toBeInTheDocument();
   });
+
+  it('пояснює охоплення реального KPI без демонстраційної зміни', () => {
+    render(
+      <KpiCard
+        title="API"
+        value={1350}
+        description="Записи ресурсу /pokemon"
+      />,
+    );
+    expect(screen.getByText('1350')).toBeInTheDocument();
+    expect(screen.getByText('Записи ресурсу /pokemon')).toBeInTheDocument();
+    expect(screen.queryByText('демонстраційна зміна')).not.toBeInTheDocument();
+  });
 });
