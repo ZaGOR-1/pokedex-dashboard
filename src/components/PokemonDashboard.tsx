@@ -1,6 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useForm, useWatch } from 'react-hook-form';
 import type { LoadPokemon } from '../application/pokemon/loadPokemon';
-import type { Pokemon } from '../domain/pokemon/types';
+import { filterPokemon } from '../domain/pokemon/selectors';
+import { useDebounce } from '../hooks/useDebounce';
+import { useFetch } from '../hooks/useFetch';
+import type { PokemonFilterValues } from './PokemonFilterForm';
 import { PokemonDashboardView } from './PokemonDashboardView';
 
 interface PokemonDashboardProps {
@@ -8,52 +11,33 @@ interface PokemonDashboardProps {
 }
 
 export function PokemonDashboard({ loadPokemon }: PokemonDashboardProps) {
-  const [pokemon, setPokemon] = useState<readonly Pokemon[]>([]);
-  const [totalCount, setTotalCount] = useState<number | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [attempt, setAttempt] = useState(0);
-
-  useEffect(() => {
-    const controller = new AbortController();
-
-    async function load() {
-      try {
-        const page = await loadPokemon(controller.signal);
-        // Захист потрібний навіть для джерела, яке не підтримує скасування.
-        if (controller.signal.aborted) return;
-        setPokemon(page.pokemon);
-        setTotalCount(page.totalCount);
-        setError(null);
-        setLoading(false);
-      } catch (error: unknown) {
-        if (controller.signal.aborted) return;
-        setError(
-          error instanceof Error
-            ? error.message
-            : 'Не вдалося завантажити дані. Перевірте з’єднання.',
-        );
-        setLoading(false);
-      }
-    }
-
-    void load();
-    return () => controller.abort();
-  }, [loadPokemon, attempt]);
-
-  function retry() {
-    setError(null);
-    setLoading(true);
-    setAttempt((value) => value + 1);
-  }
+  const { data, loading, error, refetch } = useFetch(loadPokemon, undefined);
+  const { control, reset } = useForm<PokemonFilterValues>({
+    defaultValues: { search: '', type: 'all', minHp: '' },
+  });
+  const [search, type, minHp] = useWatch({
+    control,
+    name: ['search', 'type', 'minHp'],
+  });
+  const debouncedSearch = useDebounce(search, 400);
+  // Після скидання порожній пошук застосовується одразу.
+  const pokemon = filterPokemon(data?.pokemon ?? [], {
+    search: search === '' ? '' : debouncedSearch,
+    type,
+    minHp: minHp === '' ? null : Number(minHp),
+  });
 
   return (
     <PokemonDashboardView
       pokemon={pokemon}
-      totalCount={totalCount}
+      totalCount={data?.totalCount ?? null}
+      loadedCount={data?.pokemon.length ?? 0}
       loading={loading}
       error={error}
-      onRetry={retry}
+      onRetry={refetch}
+      control={control}
+      onReset={() => reset()}
+      canReset={search !== '' || type !== 'all' || minHp !== ''}
     />
   );
 }

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   filterPokemonByType,
+  filterPokemon,
   getPokemonSummary,
   sortPokemon,
 } from './selectors';
@@ -9,6 +10,53 @@ import { mockPokemon } from '../../../tests/fixtures/mockPokemon';
 const pokemon = Object.freeze(
   mockPokemon.filter((item) => [1, 4, 7].includes(item.id)),
 );
+
+describe('filterPokemon', () => {
+  const defaults = { search: '', type: 'all', minHp: null } as const;
+
+  it('шукає частину назви без урахування регістру й пробілів навколо', () => {
+    expect(filterPokemon(pokemon, { ...defaults, search: ' BULBA ' })).toEqual([
+      pokemon[0],
+    ]);
+  });
+
+  it('поєднує назву, другий тип та включну нижню межу HP', () => {
+    expect(
+      filterPokemon(mockPokemon, { search: 'saur', type: 'poison', minHp: 60 }),
+    ).toEqual([mockPokemon[1]]);
+    expect(
+      filterPokemon(mockPokemon, { search: 'saur', type: 'poison', minHp: 61 }),
+    ).toEqual([]);
+  });
+
+  it('відсутній HP залишає без порога та відсіює з порогом 0', () => {
+    const missing = {
+      ...pokemon[0]!,
+      stats: { hp: null, attack: null, defense: null },
+    };
+    expect(filterPokemon([missing], defaults)).toEqual([missing]);
+    expect(filterPokemon([missing], { ...defaults, minHp: 0 })).toEqual([]);
+  });
+
+  it('повертає порожній масив без збігів і для порожнього джерела', () => {
+    expect(filterPokemon(pokemon, { ...defaults, search: 'missing' })).toEqual(
+      [],
+    );
+    expect(filterPokemon([], defaults)).toEqual([]);
+  });
+
+  it('не змінює джерело; KPI рахуються з відфільтрованих записів', () => {
+    const before = structuredClone(pokemon);
+    const filtered = filterPokemon(pokemon, { ...defaults, type: 'grass' });
+    expect(getPokemonSummary(filtered)).toEqual({
+      total: 1,
+      typeCount: 2,
+      multiTypeCount: 1,
+    });
+    expect(pokemon).toEqual(before);
+    expect(filterPokemon(pokemon, defaults)).not.toBe(pokemon);
+  });
+});
 
 describe('filterPokemonByType', () => {
   it('повертає всі записи для all', () => {

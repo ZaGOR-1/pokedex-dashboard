@@ -1,24 +1,34 @@
+import type { Control } from 'react-hook-form';
 import { getPokemonSummary } from '../domain/pokemon/selectors';
-import { pokemonTypes } from '../domain/pokemon/types';
 import type { Pokemon } from '../domain/pokemon/types';
 import { Counter } from './Counter';
 import { FilteredPokemonList } from './FilteredPokemonList';
 import { KpiCard } from './KpiCard';
+import { PokemonFilterForm } from './PokemonFilterForm';
+import type { PokemonFilterValues } from './PokemonFilterForm';
 
 interface PokemonDashboardViewProps {
   pokemon: readonly Pokemon[];
   totalCount: number | null;
+  loadedCount: number;
   loading: boolean;
   error: string | null;
   onRetry: () => void;
+  control: Control<PokemonFilterValues>;
+  onReset: () => void;
+  canReset: boolean;
 }
 
 export function PokemonDashboardView({
   pokemon,
   totalCount,
+  loadedCount,
   loading,
   error,
   onRetry,
+  control,
+  onReset,
+  canReset,
 }: PokemonDashboardViewProps) {
   const summary = getPokemonSummary(pokemon);
   const ready = !loading && error === null;
@@ -41,23 +51,23 @@ export function PokemonDashboardView({
           <KpiCard
             title="Pokémon у вибірці"
             value={ready ? summary.total : '—'}
-            description="Завантажені записи першої сторінки"
+            description="Записи після застосування фільтрів"
           />
           <KpiCard
             title="Типів у вибірці"
             value={ready ? summary.typeCount : '—'}
-            description="Унікальні типи завантажених Pokémon"
+            description="Унікальні типи відфільтрованих Pokémon"
           />
           <KpiCard
             title="Із двома типами"
             value={ready ? summary.multiTypeCount : '—'}
-            description="Серед завантажених Pokémon"
+            description="Серед відфільтрованих Pokémon"
           />
         </div>
         <p className="summary-note small muted">
-          KPI вибірки рахуються за всією завантаженою сторінкою й не змінюються
-          від фільтра. Загальна кількість записів API не є кількістю окремих
-          видів. Pokémon із двома типами належить до обох типів.
+          KPI вибірки та таблиця враховують однакові відфільтровані записи.
+          Загальна кількість записів API не є кількістю окремих видів. Pokémon
+          із двома типами належить до обох типів.
         </p>
       </section>
       <div className="dashboard-grid">
@@ -80,7 +90,7 @@ export function PokemonDashboardView({
                 Повторити запит
               </button>
             </section>
-          ) : pokemon.length === 0 ? (
+          ) : loadedCount === 0 ? (
             <section className="panel empty-state" role="status">
               <h2>PokeAPI повернув порожній список</h2>
               <p className="muted">
@@ -88,7 +98,29 @@ export function PokemonDashboardView({
               </p>
             </section>
           ) : (
-            <FilteredPokemonList pokemon={pokemon} types={pokemonTypes} />
+            <section
+              className="panel pokemon-panel"
+              aria-labelledby="list-title"
+            >
+              <div className="section-heading">
+                <div>
+                  <h2 id="list-title">Знайомі з Канто</h2>
+                  <p className="muted">
+                    Порівнюй Pokémon у завантаженій вибірці.
+                  </p>
+                </div>
+                <span className="sample-badge">PokeAPI</span>
+              </div>
+              <PokemonFilterForm
+                control={control}
+                onReset={onReset}
+                canReset={canReset}
+              />
+              <FilteredPokemonList
+                pokemon={pokemon}
+                loadedCount={loadedCount}
+              />
+            </section>
           )}
         </div>
         <aside className="sidebar" aria-label="Планування команди">
