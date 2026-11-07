@@ -1,32 +1,23 @@
-import { useId, useState } from 'react';
-import { filterPokemonByType, sortPokemon } from '../domain/pokemon/selectors';
+import { useState } from 'react';
+import { sortPokemon } from '../domain/pokemon/selectors';
 import type {
   Pokemon,
-  StandardPokemonType,
-  PokemonTypeFilter,
   PokemonSortField,
   SortDirection,
 } from '../domain/pokemon/types';
 
 interface FilteredPokemonListProps {
   pokemon: readonly Pokemon[];
-  types: readonly StandardPokemonType[];
+  loadedCount: number;
 }
 
 export function FilteredPokemonList({
   pokemon,
-  types,
+  loadedCount,
 }: FilteredPokemonListProps) {
-  const [typeFilter, setTypeFilter] = useState<PokemonTypeFilter>('all');
   const [sortField, setSortField] = useState<PokemonSortField>('id');
   const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
-  const filterId = useId();
-  const titleId = useId();
-  const visiblePokemon = sortPokemon(
-    filterPokemonByType(pokemon, typeFilter),
-    sortField,
-    sortDirection,
-  );
+  const visiblePokemon = sortPokemon(pokemon, sortField, sortDirection);
 
   function changeSort(field: PokemonSortField) {
     setSortDirection(
@@ -48,48 +39,13 @@ export function FilteredPokemonList({
   }
 
   return (
-    <section className="panel pokemon-panel" aria-labelledby={titleId}>
-      <div className="section-heading">
-        <div>
-          <h2 id={titleId}>Знайомі з Канто</h2>
-          <p className="muted">
-            Перші 20 записів. Фільтр працює в межах цієї сторінки.
-          </p>
-        </div>
-        <span className="sample-badge">PokeAPI</span>
-      </div>
-      <div className="filter-bar">
-        <div className="filter-field">
-          <label htmlFor={filterId}>Тип Pokémon</label>
-          <select
-            id={filterId}
-            value={typeFilter}
-            onChange={(event) => {
-              const selectedType = types.find(
-                (type) => type === event.target.value,
-              );
-              setTypeFilter(selectedType ?? 'all');
-            }}
-          >
-            <option value="all">Усі типи</option>
-            {types.map((type) => (
-              <option key={type} value={type}>
-                {type}
-              </option>
-            ))}
-          </select>
-        </div>
-        <button
-          type="button"
-          className="text-button"
-          onClick={() => setTypeFilter('all')}
-          disabled={typeFilter === 'all'}
-        >
-          Скинути фільтр
-        </button>
-      </div>
-      <p className="list-count muted" role="status">
-        Показано {visiblePokemon.length} із {pokemon.length}
+    <>
+      <p
+        className="list-count muted"
+        role="status"
+        aria-label="Кількість результатів"
+      >
+        Показано {visiblePokemon.length} із {loadedCount}
       </p>
       {visiblePokemon.length > 0 ? (
         <div
@@ -179,14 +135,16 @@ export function FilteredPokemonList({
           <span aria-hidden="true">⌕</span>
           <h3>Pokémon не знайдено</h3>
           <p className="muted">
-            Серед завантажених записів немає Pokémon вибраного типу.
+            Серед завантажених записів немає Pokémon за цими фільтрами.
           </p>
-          <p className="small muted">Вибери інший тип або скинь фільтр.</p>
+          <p className="small muted">
+            Зміни назву, тип чи HP або скинь фільтри.
+          </p>
         </div>
       )}
       <p className="list-note small muted">
         Pokémon із двома типами входить до кожного відповідного фільтра.
       </p>
-    </section>
+    </>
   );
 }

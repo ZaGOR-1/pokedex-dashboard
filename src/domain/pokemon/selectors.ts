@@ -3,6 +3,7 @@ import type {
   PokemonTypeFilter,
   PokemonSortField,
   SortDirection,
+  PokemonFilters,
 } from './types';
 
 export function filterPokemonByType(
@@ -10,6 +11,19 @@ export function filterPokemonByType(
   type: PokemonTypeFilter,
 ): Pokemon[] {
   return pokemon.filter((item) => type === 'all' || item.types.includes(type));
+}
+
+export function filterPokemon(
+  pokemon: readonly Pokemon[],
+  filters: PokemonFilters,
+): Pokemon[] {
+  const search = filters.search.trim().toLowerCase();
+  return filterPokemonByType(pokemon, filters.type).filter(
+    (item) =>
+      item.name.toLowerCase().includes(search) &&
+      (filters.minHp === null ||
+        (item.stats.hp !== null && item.stats.hp >= filters.minHp)),
+  );
 }
 
 export function getPokemonSummary(pokemon: readonly Pokemon[]) {

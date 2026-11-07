@@ -2,33 +2,43 @@ import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import { mockPokemon } from '../../tests/fixtures/mockPokemon';
-import { pokemonTypes } from '../domain/pokemon/types';
+import type { Pokemon } from '../domain/pokemon/types';
+import { PokemonDashboard } from './PokemonDashboard';
 import { FilteredPokemonList } from './FilteredPokemonList';
 
-function renderList() {
-  render(<FilteredPokemonList pokemon={mockPokemon} types={pokemonTypes} />);
+async function renderList(pokemon: readonly Pokemon[] = mockPokemon) {
+  render(
+    <PokemonDashboard
+      loadPokemon={async () => ({ pokemon, totalCount: 1350 })}
+    />,
+  );
+  await screen.findByRole('table');
 }
 
-describe('FilteredPokemonList', () => {
-  it('спочатку показує всі 12 mock-записів', () => {
-    renderList();
+describe('PokemonDashboard: фільтри й таблиця', () => {
+  it('спочатку показує всі 12 mock-записів', async () => {
+    await renderList();
     expect(screen.getByRole('combobox', { name: 'Тип Pokémon' })).toHaveValue(
       'all',
     );
-    expect(screen.getByRole('status')).toHaveTextContent('Показано 12 із 12');
+    expect(
+      screen.getByRole('status', { name: 'Кількість результатів' }),
+    ).toHaveTextContent('Показано 12 із 12');
     expect(screen.getByText('Eevee')).toBeInTheDocument();
     expect(
-      screen.getByRole('button', { name: 'Скинути фільтр' }),
+      screen.getByRole('button', { name: 'Скинути фільтри' }),
     ).toBeDisabled();
   });
 
   it('контрольований select показує тільки вибраний тип', async () => {
     const user = userEvent.setup();
-    renderList();
+    await renderList();
     const select = screen.getByRole('combobox', { name: 'Тип Pokémon' });
     await user.selectOptions(select, 'fire');
     expect(select).toHaveValue('fire');
-    expect(screen.getByRole('status')).toHaveTextContent('Показано 2 із 12');
+    expect(
+      screen.getByRole('status', { name: 'Кількість результатів' }),
+    ).toHaveTextContent('Показано 2 із 12');
     const list = within(screen.getByRole('table'));
     expect(list.getByText('Charmander')).toBeInTheDocument();
     expect(list.getByText('Charmeleon')).toBeInTheDocument();
@@ -37,30 +47,38 @@ describe('FilteredPokemonList', () => {
 
   it('враховує другий тип Pokémon', async () => {
     const user = userEvent.setup();
-    renderList();
+    await renderList();
     await user.selectOptions(screen.getByRole('combobox'), 'poison');
     expect(screen.getByText('Bulbasaur')).toBeInTheDocument();
     expect(screen.getByText('Ivysaur')).toBeInTheDocument();
-    expect(screen.getByRole('status')).toHaveTextContent('Показано 2 із 12');
+    expect(
+      screen.getByRole('status', { name: 'Кількість результатів' }),
+    ).toHaveTextContent('Показано 2 із 12');
   });
 
   it('пояснює відсутність збігів і скидає фільтр', async () => {
     const user = userEvent.setup();
-    renderList();
+    await renderList();
     await user.selectOptions(screen.getByRole('combobox'), 'ice');
     expect(
       screen.getByRole('heading', { name: 'Pokémon не знайдено' }),
     ).toBeInTheDocument();
-    expect(screen.getByRole('status')).toHaveTextContent('Показано 0 із 12');
+    expect(
+      screen.getByRole('status', { name: 'Кількість результатів' }),
+    ).toHaveTextContent('Показано 0 із 12');
     expect(screen.queryByRole('table')).not.toBeInTheDocument();
-    await user.click(screen.getByRole('button', { name: 'Скинути фільтр' }));
+    await user.click(screen.getByRole('button', { name: 'Скинути фільтри' }));
     expect(screen.getByRole('combobox')).toHaveValue('all');
-    expect(screen.getByRole('status')).toHaveTextContent('Показано 12 із 12');
+    expect(
+      screen.getByRole('status', { name: 'Кількість результатів' }),
+    ).toHaveTextContent('Показано 12 із 12');
   });
 
   it('обробляє порожній масив у props', () => {
-    render(<FilteredPokemonList pokemon={[]} types={pokemonTypes} />);
-    expect(screen.getByRole('status')).toHaveTextContent('Показано 0 із 0');
+    render(<FilteredPokemonList pokemon={[]} loadedCount={0} />);
+    expect(
+      screen.getByRole('status', { name: 'Кількість результатів' }),
+    ).toHaveTextContent('Показано 0 із 0');
     expect(
       screen.getByRole('heading', { name: 'Pokémon не знайдено' }),
     ).toBeInTheDocument();
@@ -68,7 +86,7 @@ describe('FilteredPokemonList', () => {
 
   it('сортує назву та HP в обох напрямках і зберігає сортування після фільтра', async () => {
     const user = userEvent.setup();
-    renderList();
+    await renderList();
     const names = () =>
       within(screen.getByRole('table'))
         .getAllByRole('rowheader')
@@ -95,7 +113,7 @@ describe('FilteredPokemonList', () => {
     );
     await user.selectOptions(screen.getByRole('combobox'), 'fire');
     expect(names()).toEqual(['Charmeleon', 'Charmander']);
-    await user.click(screen.getByRole('button', { name: 'Скинути фільтр' }));
+    await user.click(screen.getByRole('button', { name: 'Скинути фільтри' }));
     expect(names()[0]).toBe('Jigglypuff');
     expect(mockPokemon.map((item) => item.id)).toEqual([
       1, 2, 4, 5, 7, 8, 10, 16, 25, 27, 39, 133,
@@ -112,7 +130,7 @@ describe('FilteredPokemonList', () => {
             stats: { hp: null, attack: null, defense: null },
           },
         ]}
-        types={pokemonTypes}
+        loadedCount={1}
       />,
     );
     expect(within(screen.getByRole('table')).getAllByText('—')).toHaveLength(4);
@@ -120,12 +138,7 @@ describe('FilteredPokemonList', () => {
 
   it('показує новий тип із базовим бейджем, залишаючи 18 типів у фільтрі', async () => {
     const user = userEvent.setup();
-    render(
-      <FilteredPokemonList
-        pokemon={[{ ...mockPokemon[0]!, types: ['grass', 'stellar'] }]}
-        types={pokemonTypes}
-      />,
-    );
+    await renderList([{ ...mockPokemon[0]!, types: ['grass', 'stellar'] }]);
     expect(screen.getByText('stellar')).toHaveClass(
       'type-badge',
       'type-stellar',
@@ -139,7 +152,7 @@ describe('FilteredPokemonList', () => {
     expect(screen.getByText('stellar')).toBeInTheDocument();
     await user.selectOptions(select, 'ice');
     expect(screen.queryByRole('table')).not.toBeInTheDocument();
-    await user.click(screen.getByRole('button', { name: 'Скинути фільтр' }));
+    await user.click(screen.getByRole('button', { name: 'Скинути фільтри' }));
     expect(screen.getByText('stellar')).toBeInTheDocument();
   });
 });

@@ -30,7 +30,7 @@ export function App({ loadPokemon = pokeApi.loadPokemon }: AppProps) {
           </header>
           <main id="main-content" tabIndex={-1}>
             <section className="intro" aria-labelledby="page-title">
-              <p className="eyebrow">ВАРІАНТ 06 · ЛАБОРАТОРНА РОБОТА 02</p>
+              <p className="eyebrow">ВАРІАНТ 06 · ЛАБОРАТОРНА РОБОТА 03</p>
               <div className="intro-heading">
                 <h1 id="page-title">
                   Кожна пригода починається

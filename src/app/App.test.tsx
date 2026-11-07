@@ -165,11 +165,14 @@ describe('App: попередні віджети', () => {
     expect(screen.getByText('Squirtle')).toBeInTheDocument();
     expect(screen.getByText('Wartortle')).toBeInTheDocument();
     expect(screen.queryByText('Charmander')).not.toBeInTheDocument();
+    expectKpi('Pokémon у вибірці', '2');
+    expectKpi('Типів у вибірці', '1');
+    expectKpi('Із двома типами', '0');
+    await user.click(screen.getByRole('button', { name: 'Скинути фільтри' }));
+    expect(screen.getByRole('combobox')).toHaveValue('all');
     expectKpi('Pokémon у вибірці', '12');
     expectKpi('Типів у вибірці', '10');
     expectKpi('Із двома типами', '4');
-    await user.click(screen.getByRole('button', { name: 'Скинути фільтр' }));
-    expect(screen.getByRole('combobox')).toHaveValue('all');
     expect(screen.getByLabelText('Кількість у команді')).toHaveTextContent('1');
     expect(screen.getByRole('button', { name: 'Темна тема' })).toHaveAttribute(
       'aria-pressed',
