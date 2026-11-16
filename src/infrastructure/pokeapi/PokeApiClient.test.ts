@@ -6,6 +6,31 @@ import { createPokeApiClient } from './PokeApiClient';
 const response = (data: unknown) => new Response(JSON.stringify(data));
 
 describe('PokeApiClient', () => {
+  it('повторно використовує успішну сторінку, але не кешує помилку', async () => {
+    const fetcher = vi.fn<typeof fetch>(async (input) => {
+      const name = String(input).split('/').at(-1);
+      return response(
+        String(input).includes('?')
+          ? apiList
+          : apiPokemon.find((item) => item.name === name),
+      );
+    });
+    fetcher.mockRejectedValueOnce(new TypeError('Failed to fetch'));
+    const client = createPokeApiClient(fetcher);
+    const signal = new AbortController().signal;
+    await expect(client.loadPokemon(signal)).rejects.toThrow(
+      'Перевірте мережу',
+    );
+    const page = await client.loadPokemon(signal);
+    expect(await client.loadPokemon(signal)).toBe(page);
+    expect(fetcher).toHaveBeenCalledTimes(5);
+    const aborted = new AbortController();
+    aborted.abort();
+    await expect(client.loadPokemon(aborted.signal)).rejects.toMatchObject({
+      name: 'AbortError',
+    });
+  });
+
   it('отримує першу сторінку і перетворює details на доменну модель', async () => {
     const fetcher = vi.fn<typeof fetch>(async (input) => {
       const name = String(input).split('/').at(-1);

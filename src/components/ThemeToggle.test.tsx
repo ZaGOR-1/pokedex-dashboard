@@ -2,14 +2,16 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it } from 'vitest';
 import { ThemeToggle } from './ThemeToggle';
+import { ThemeProvider } from '../app/ThemeProvider';
 
 describe('ThemeToggle', () => {
   it('перемикає тему зі сталою назвою кнопки й рендерить children', async () => {
     const user = userEvent.setup();
     const { container } = render(
-      <ThemeToggle>
+      <ThemeProvider>
+        <ThemeToggle />
         <p>Вміст секції</p>
-      </ThemeToggle>,
+      </ThemeProvider>,
     );
     const button = screen.getByRole('button', {
       name: 'Темна тема',
@@ -34,9 +36,10 @@ describe('ThemeToggle', () => {
   it.each(['{Enter}', ' '])('підтримує клавішу %s', async (key) => {
     const user = userEvent.setup();
     render(
-      <ThemeToggle>
+      <ThemeProvider>
+        <ThemeToggle />
         <p>Вміст секції</p>
-      </ThemeToggle>,
+      </ThemeProvider>,
     );
     const button = screen.getByRole('button', { name: 'Темна тема' });
     await user.tab();

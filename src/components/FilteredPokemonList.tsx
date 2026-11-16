@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router';
 import { sortPokemon } from '../domain/pokemon/selectors';
 import type {
   Pokemon,
@@ -100,7 +101,7 @@ export function FilteredPokemonList({
                     #{String(item.id).padStart(3, '0')}
                   </td>
                   <th scope="row" className="pokemon-name" lang="en">
-                    {item.name}
+                    <Link to={`/pokemon/${item.id}`}>{item.name}</Link>
                   </th>
                   <td>
                     {item.types.length === 0 ? (

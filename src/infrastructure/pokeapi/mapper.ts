@@ -1,7 +1,7 @@
 import type { Pokemon } from '../../domain/pokemon/types';
 import type { PokemonDto, PokemonListDto } from './dto';
 
-function isObject(value: unknown): value is Record<string, unknown> {
+export function isObject(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
@@ -11,7 +11,7 @@ function isInteger(value: unknown, minimum = 0): value is number {
   );
 }
 
-function isName(value: unknown): value is string {
+export function isName(value: unknown): value is string {
   return typeof value === 'string' && /^[a-z0-9-]+$/.test(value);
 }
 
@@ -40,7 +40,7 @@ export function parsePokemonList(value: unknown): PokemonListDto {
   return { count: value.count, results: value.results };
 }
 
-function parsePokemon(value: unknown): PokemonDto {
+export function parsePokemon(value: unknown): PokemonDto {
   if (
     !isObject(value) ||
     !isInteger(value.id, 1) ||

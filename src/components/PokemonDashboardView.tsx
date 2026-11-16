@@ -1,4 +1,4 @@
-import type { Control } from 'react-hook-form';
+import { useFormContext, useWatch } from 'react-hook-form';
 import { getPokemonSummary } from '../domain/pokemon/selectors';
 import type { Pokemon } from '../domain/pokemon/types';
 import { Counter } from './Counter';
@@ -14,9 +14,6 @@ interface PokemonDashboardViewProps {
   loading: boolean;
   error: string | null;
   onRetry: () => void;
-  control: Control<PokemonFilterValues>;
-  onReset: () => void;
-  canReset: boolean;
 }
 
 export function PokemonDashboardView({
@@ -26,10 +23,12 @@ export function PokemonDashboardView({
   loading,
   error,
   onRetry,
-  control,
-  onReset,
-  canReset,
 }: PokemonDashboardViewProps) {
+  const { control, reset } = useFormContext<PokemonFilterValues>();
+  const [search, type, minHp] = useWatch({
+    control,
+    name: ['search', 'type', 'minHp'],
+  });
   const summary = getPokemonSummary(pokemon);
   const ready = !loading && error === null;
 
@@ -113,8 +112,8 @@ export function PokemonDashboardView({
               </div>
               <PokemonFilterForm
                 control={control}
-                onReset={onReset}
-                canReset={canReset}
+                onReset={() => reset()}
+                canReset={search !== '' || type !== 'all' || minHp !== ''}
               />
               <FilteredPokemonList
                 pokemon={pokemon}

@@ -1,21 +1,38 @@
 import type { LoadPokemon } from '../application/pokemon/loadPokemon';
-import { PokemonDashboard } from '../components/PokemonDashboard';
+import { Route, Routes } from 'react-router';
+import {
+  createGetPokemonDetails,
+  type GetPokemonDetails,
+} from '../application/pokemon/getPokemonDetails';
+import { DashboardPage } from '../components/DashboardPage';
+import { PokemonDetailsPage } from '../components/PokemonDetailsPage';
+import { NotFoundPage } from '../components/NotFoundPage';
+import { ThemeProvider } from './ThemeProvider';
+import { PokemonFiltersProvider } from './PokemonFiltersProvider';
+import { RouteFocus } from './RouteFocus';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { createPokeApiClient } from '../infrastructure/pokeapi/PokeApiClient';
 
 const pokeApi = createPokeApiClient();
+const defaultGetDetails = createGetPokemonDetails(pokeApi.detailsRepository);
 
 interface AppProps {
   loadPokemon?: LoadPokemon;
+  getPokemonDetails?: GetPokemonDetails;
 }
 
-export function App({ loadPokemon = pokeApi.loadPokemon }: AppProps) {
+export function App({
+  loadPokemon = pokeApi.loadPokemon,
+  getPokemonDetails = defaultGetDetails,
+}: AppProps) {
   return (
-    <>
-      <a className="skip-link" href="#main-content">
-        Перейти до вмісту
-      </a>
-      <ThemeToggle>
+    <ThemeProvider>
+      <PokemonFiltersProvider>
+        <RouteFocus />
+        <a className="skip-link" href="#main-content">
+          Перейти до вмісту
+        </a>
+        <ThemeToggle />
         <div className="page">
           <header className="page-header">
             <div className="brand">
@@ -29,24 +46,19 @@ export function App({ loadPokemon = pokeApi.loadPokemon }: AppProps) {
             </div>
           </header>
           <main id="main-content" tabIndex={-1}>
-            <section className="intro" aria-labelledby="page-title">
-              <p className="eyebrow">ВАРІАНТ 06 · ЛАБОРАТОРНА РОБОТА 03</p>
-              <div className="intro-heading">
-                <h1 id="page-title">
-                  Кожна пригода починається
-                  <br className="desktop-break" /> з цікавості<span>.</span>
-                </h1>
-                <span className="demo-label">
-                  <span aria-hidden="true" />
-                  Дані з PokeAPI
-                </span>
-              </div>
-              <p className="intro-description">
-                Досліджуй типи Pokémon, порівнюй характеристики та збирайся у
-                свою першу подорож.
-              </p>
-            </section>
-            <PokemonDashboard loadPokemon={loadPokemon} />
+            <Routes>
+              <Route
+                path="/"
+                element={<DashboardPage loadPokemon={loadPokemon} />}
+              />
+              <Route
+                path="/pokemon/:id"
+                element={
+                  <PokemonDetailsPage getPokemonDetails={getPokemonDetails} />
+                }
+              />
+              <Route path="*" element={<NotFoundPage />} />
+            </Routes>
           </main>
           <footer className="page-footer">
             <span>Pokédex Analytics · Навчальний проєкт</span>
@@ -56,7 +68,7 @@ export function App({ loadPokemon = pokeApi.loadPokemon }: AppProps) {
             </span>
           </footer>
         </div>
-      </ThemeToggle>
-    </>
+      </PokemonFiltersProvider>
+    </ThemeProvider>
   );
 }

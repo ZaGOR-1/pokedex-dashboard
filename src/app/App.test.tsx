@@ -1,5 +1,6 @@
+import { renderWithProviders as render } from '../../tests/render';
 import { StrictMode } from 'react';
-import { act, render, screen, within } from '@testing-library/react';
+import { act, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, expect, it, vi } from 'vitest';
 import type {
@@ -230,6 +231,7 @@ describe('PokemonDashboard: життєвий цикл', () => {
       <StrictMode>
         <PokemonDashboard loadPokemon={loadPokemon} />
       </StrictMode>,
+      { reactStrictMode: true },
     );
     expect(loadPokemon).toHaveBeenCalledTimes(2);
     expect(loadPokemon.mock.calls[0]![0].aborted).toBe(true);

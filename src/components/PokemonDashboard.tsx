@@ -1,4 +1,4 @@
-import { useForm, useWatch } from 'react-hook-form';
+import { useFormContext, useWatch } from 'react-hook-form';
 import type { LoadPokemon } from '../application/pokemon/loadPokemon';
 import { filterPokemon } from '../domain/pokemon/selectors';
 import { useDebounce } from '../hooks/useDebounce';
@@ -12,9 +12,7 @@ interface PokemonDashboardProps {
 
 export function PokemonDashboard({ loadPokemon }: PokemonDashboardProps) {
   const { data, loading, error, refetch } = useFetch(loadPokemon, undefined);
-  const { control, reset } = useForm<PokemonFilterValues>({
-    defaultValues: { search: '', type: 'all', minHp: '' },
-  });
+  const { control } = useFormContext<PokemonFilterValues>();
   const [search, type, minHp] = useWatch({
     control,
     name: ['search', 'type', 'minHp'],
@@ -35,9 +33,6 @@ export function PokemonDashboard({ loadPokemon }: PokemonDashboardProps) {
       loading={loading}
       error={error}
       onRetry={refetch}
-      control={control}
-      onReset={() => reset()}
-      canReset={search !== '' || type !== 'all' || minHp !== ''}
     />
   );
 }

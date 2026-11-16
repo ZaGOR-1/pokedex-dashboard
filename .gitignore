@@ -11,3 +11,5 @@ coverage/
 .vscode/
 .idea/
 _vite_init/
+playwright-report/
+test-results/
