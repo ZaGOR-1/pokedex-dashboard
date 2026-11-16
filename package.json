@@ -11,16 +11,19 @@
     "typecheck": "tsc --noEmit -p tsconfig.app.json && tsc --noEmit -p tsconfig.node.json",
     "test": "vitest run",
     "test:watch": "vitest",
-    "format": "prettier --write src tests README.md index.html package.json .prettierrc.json eslint.config.js tsconfig.json tsconfig.app.json tsconfig.node.json vite.config.ts vitest.config.ts",
-    "format:check": "prettier --check src tests README.md index.html package.json .prettierrc.json eslint.config.js tsconfig.json tsconfig.app.json tsconfig.node.json vite.config.ts vitest.config.ts"
+    "format": "prettier --write src tests README.md index.html package.json .prettierrc.json eslint.config.js tsconfig.json tsconfig.app.json tsconfig.node.json vite.config.ts vitest.config.ts playwright.config.ts",
+    "format:check": "prettier --check src tests README.md index.html package.json .prettierrc.json eslint.config.js tsconfig.json tsconfig.app.json tsconfig.node.json vite.config.ts vitest.config.ts playwright.config.ts",
+    "test:browser": "playwright test"
   },
   "dependencies": {
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
-    "react-hook-form": "^7.91.0"
+    "react-hook-form": "^7.91.0",
+    "react-router": "^7.18.5"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.65.1",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/jest-dom": "^7.0.1",
     "@testing-library/react": "^16.3.3",

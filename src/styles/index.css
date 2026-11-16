@@ -448,6 +448,88 @@ select {
   overflow-wrap: anywhere;
 }
 
+.pokemon-name a {
+  color: inherit;
+  text-underline-offset: 4px;
+}
+
+.details-page,
+.route-not-found {
+  margin-top: 32px;
+}
+
+.back-link {
+  display: inline-block;
+  padding: 12px 0;
+  color: inherit;
+  text-underline-offset: 4px;
+}
+
+.details-panel {
+  margin-top: 12px;
+  padding: clamp(16px, 4vw, 36px);
+  overflow-wrap: anywhere;
+}
+
+.details-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.details-heading h1 {
+  margin: 0 0 16px;
+  font-size: clamp(26px, 5vw, 40px);
+}
+
+.details-heading img {
+  object-fit: contain;
+  max-width: 100%;
+}
+
+.details-panel section {
+  margin-top: 28px;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+@media (max-width: 767px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.stats-grid div {
+  padding: 12px;
+  border: 1px solid #8793a8;
+  border-radius: 8px;
+}
+
+.stats-grid dd {
+  margin: 8px 0 0;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.abilities-list,
+.evolution-tree,
+.evolution-tree ul {
+  padding-left: 24px;
+  line-height: 1.8;
+}
+
 .type-list {
   display: flex;
   flex-wrap: wrap;

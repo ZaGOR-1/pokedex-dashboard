@@ -1,26 +1,20 @@
-import { useState, type ReactNode } from 'react';
+import { useTheme } from '../app/themeContext';
 
-interface ThemeToggleProps {
-  children: ReactNode;
-}
-
-export function ThemeToggle({ children }: ThemeToggleProps) {
-  const [isDark, setIsDark] = useState(false);
+export function ThemeToggle() {
+  const { theme, toggleTheme } = useTheme();
+  const isDark = theme === 'dark';
 
   return (
-    <div className="theme-root" data-theme={isDark ? 'dark' : 'light'}>
-      <div className="theme-control">
-        <button
-          type="button"
-          className="theme-button"
-          aria-pressed={isDark}
-          onClick={() => setIsDark((current) => !current)}
-        >
-          <span aria-hidden="true">{isDark ? '☾' : '☀'}</span>
-          Темна тема
-        </button>
-      </div>
-      {children}
+    <div className="theme-control">
+      <button
+        type="button"
+        className="theme-button"
+        aria-pressed={isDark}
+        onClick={toggleTheme}
+      >
+        <span aria-hidden="true">{isDark ? '☾' : '☀'}</span>
+        Темна тема
+      </button>
     </div>
   );
 }

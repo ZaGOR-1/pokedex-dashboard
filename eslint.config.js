@@ -18,5 +18,9 @@ export default defineConfig([
     ],
     languageOptions: { globals: globals.browser },
   },
+  {
+    files: ['**/*.test.{ts,tsx}', 'tests/**/*.{ts,tsx}'],
+    rules: { 'react-refresh/only-export-components': 'off' },
+  },
   prettier,
 ]);
