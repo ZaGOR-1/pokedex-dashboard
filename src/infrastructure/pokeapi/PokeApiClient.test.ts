@@ -46,7 +46,14 @@ describe('PokeApiClient', () => {
     );
     expect(page.totalCount).toBe(1350);
     expect(page.pokemon.map((item) => item.id)).toEqual([1, 4, 7]);
-    expect(page.pokemon[0]?.stats).toEqual({ hp: 45, attack: 49, defense: 49 });
+    expect(page.pokemon[0]?.stats).toEqual({
+      hp: 45,
+      attack: 49,
+      defense: 49,
+      specialAttack: 65,
+      specialDefense: 65,
+      speed: 45,
+    });
     expect(fetcher).toHaveBeenCalledTimes(4);
     expect(fetcher).toHaveBeenCalledWith(
       'https://pokeapi.co/api/v2/pokemon?limit=20&offset=0',

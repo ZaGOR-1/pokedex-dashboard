@@ -32,7 +32,14 @@ describe('filterPokemon', () => {
   it('відсутній HP залишає без порога та відсіює з порогом 0', () => {
     const missing = {
       ...pokemon[0]!,
-      stats: { hp: null, attack: null, defense: null },
+      stats: {
+        hp: null,
+        attack: null,
+        defense: null,
+        specialAttack: null,
+        specialDefense: null,
+        speed: null,
+      },
     };
     expect(filterPokemon([missing], defaults)).toEqual([missing]);
     expect(filterPokemon([missing], { ...defaults, minHp: 0 })).toEqual([]);
@@ -116,7 +123,14 @@ describe('sortPokemon', () => {
     (direction) => {
       const missing = {
         ...mockPokemon[0]!,
-        stats: { hp: null, attack: null, defense: null },
+        stats: {
+          hp: null,
+          attack: null,
+          defense: null,
+          specialAttack: null,
+          specialDefense: null,
+          speed: null,
+        },
       };
       const sameHp = { ...mockPokemon[2]!, id: 99 };
       expect(

@@ -5,7 +5,7 @@ export function DashboardPage({ loadPokemon }: { loadPokemon: LoadPokemon }) {
   return (
     <>
       <section className="intro" aria-labelledby="page-title">
-        <p className="eyebrow">ВАРІАНТ 06 · ЛАБОРАТОРНА РОБОТА 04</p>
+        <p className="eyebrow">ВАРІАНТ 06 · ЛАБОРАТОРНА РОБОТА 05</p>
         <div className="intro-heading">
           <h1 id="page-title">
             Кожна пригода починається

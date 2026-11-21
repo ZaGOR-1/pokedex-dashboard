@@ -1,3 +1,4 @@
+import { FavoriteButton } from './FavoriteButton';
 import { useState } from 'react';
 import { Link } from 'react-router';
 import { sortPokemon } from '../domain/pokemon/selectors';
@@ -92,6 +93,7 @@ export function FilteredPokemonList({
                 </th>
                 <th scope="col">Атака</th>
                 <th scope="col">Захист</th>
+                <th scope="col">Обране</th>
               </tr>
             </thead>
             <tbody>
@@ -126,6 +128,12 @@ export function FilteredPokemonList({
                   <td>{item.stats.hp ?? '—'}</td>
                   <td>{item.stats.attack ?? '—'}</td>
                   <td>{item.stats.defense ?? '—'}</td>
+                  <td>
+                    <FavoriteButton
+                      pokemonId={item.id}
+                      pokemonName={item.name}
+                    />
+                  </td>
                 </tr>
               ))}
             </tbody>

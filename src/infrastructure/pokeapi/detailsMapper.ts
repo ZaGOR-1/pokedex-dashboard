@@ -43,8 +43,6 @@ export function mapPokemonDetails(value: unknown) {
     throw new Error('PokeAPI повернув некоректні деталі Pokémon.');
   }
   const pokemon = mapPokemon(dto);
-  const getStat = (name: string) =>
-    dto.stats.find((item) => item.stat.name === name)?.base_stat ?? null;
 
   return {
     pokemon: {
@@ -53,12 +51,6 @@ export function mapPokemonDetails(value: unknown) {
         ? spriteUrl(value.sprites.front_default)
         : null,
       abilities: [...new Set(value.abilities.map((item) => item.ability.name))],
-      stats: {
-        ...pokemon.stats,
-        specialAttack: getStat('special-attack'),
-        specialDefense: getStat('special-defense'),
-        speed: getStat('speed'),
-      },
     },
     speciesId: resourceId(value.species.url, 'pokemon-species'),
   };

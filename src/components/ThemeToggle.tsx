@@ -1,7 +1,9 @@
-import { useTheme } from '../app/themeContext';
+import { useDashboardStore } from '../app/dashboardStore';
+import { selectTheme } from '../app/dashboardSelectors';
 
 export function ThemeToggle() {
-  const { theme, toggleTheme } = useTheme();
+  const theme = useDashboardStore(selectTheme);
+  const toggleTheme = useDashboardStore((state) => state.toggleTheme);
   const isDark = theme === 'dark';
 
   return (

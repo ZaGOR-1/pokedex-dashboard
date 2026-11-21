@@ -76,6 +76,9 @@ export function mapPokemon(value: unknown): Pokemon {
       hp: getStat('hp'),
       attack: getStat('attack'),
       defense: getStat('defense'),
+      specialAttack: getStat('special-attack'),
+      specialDefense: getStat('special-defense'),
+      speed: getStat('speed'),
     },
   };
 }

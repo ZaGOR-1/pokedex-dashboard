@@ -1,11 +1,10 @@
-import { useFormContext, useWatch } from 'react-hook-form';
 import { getPokemonSummary } from '../domain/pokemon/selectors';
 import type { Pokemon } from '../domain/pokemon/types';
 import { Counter } from './Counter';
 import { FilteredPokemonList } from './FilteredPokemonList';
 import { KpiCard } from './KpiCard';
 import { PokemonFilterForm } from './PokemonFilterForm';
-import type { PokemonFilterValues } from './PokemonFilterForm';
+import { PokemonStatsWidget } from './PokemonStatsWidget';
 
 interface PokemonDashboardViewProps {
   pokemon: readonly Pokemon[];
@@ -24,11 +23,6 @@ export function PokemonDashboardView({
   error,
   onRetry,
 }: PokemonDashboardViewProps) {
-  const { control, reset } = useFormContext<PokemonFilterValues>();
-  const [search, type, minHp] = useWatch({
-    control,
-    name: ['search', 'type', 'minHp'],
-  });
   const summary = getPokemonSummary(pokemon);
   const ready = !loading && error === null;
 
@@ -69,6 +63,7 @@ export function PokemonDashboardView({
           із двома типами належить до обох типів.
         </p>
       </section>
+      {ready && <PokemonStatsWidget pokemon={pokemon} />}
       <div className="dashboard-grid">
         <div aria-busy={loading}>
           {loading ? (
@@ -110,11 +105,7 @@ export function PokemonDashboardView({
                 </div>
                 <span className="sample-badge">PokeAPI</span>
               </div>
-              <PokemonFilterForm
-                control={control}
-                onReset={() => reset()}
-                canReset={search !== '' || type !== 'all' || minHp !== ''}
-              />
+              <PokemonFilterForm />
               <FilteredPokemonList
                 pokemon={pokemon}
                 loadedCount={loadedCount}

@@ -7,8 +7,7 @@ import {
 import { DashboardPage } from '../components/DashboardPage';
 import { PokemonDetailsPage } from '../components/PokemonDetailsPage';
 import { NotFoundPage } from '../components/NotFoundPage';
-import { ThemeProvider } from './ThemeProvider';
-import { PokemonFiltersProvider } from './PokemonFiltersProvider';
+import { ThemeRoot } from './ThemeRoot';
 import { RouteFocus } from './RouteFocus';
 import { ThemeToggle } from '../components/ThemeToggle';
 import { createPokeApiClient } from '../infrastructure/pokeapi/PokeApiClient';
@@ -26,49 +25,47 @@ export function App({
   getPokemonDetails = defaultGetDetails,
 }: AppProps) {
   return (
-    <ThemeProvider>
-      <PokemonFiltersProvider>
-        <RouteFocus />
-        <a className="skip-link" href="#main-content">
-          Перейти до вмісту
-        </a>
-        <ThemeToggle />
-        <div className="page">
-          <header className="page-header">
-            <div className="brand">
-              <span className="brand-mark" aria-hidden="true">
-                <span />
-              </span>
-              <div>
-                <span className="brand-name">Pokédex</span>
-                <span className="brand-caption">ANALYTICS</span>
-              </div>
-            </div>
-          </header>
-          <main id="main-content" tabIndex={-1}>
-            <Routes>
-              <Route
-                path="/"
-                element={<DashboardPage loadPokemon={loadPokemon} />}
-              />
-              <Route
-                path="/pokemon/:id"
-                element={
-                  <PokemonDetailsPage getPokemonDetails={getPokemonDetails} />
-                }
-              />
-              <Route path="*" element={<NotFoundPage />} />
-            </Routes>
-          </main>
-          <footer className="page-footer">
-            <span>Pokédex Analytics · Навчальний проєкт</span>
-            <span>
-              Pokémon належать їхнім правовласникам ·{' '}
-              <a href="https://pokeapi.co/docs/v2">PokeAPI</a>
+    <ThemeRoot>
+      <RouteFocus />
+      <a className="skip-link" href="#main-content">
+        Перейти до вмісту
+      </a>
+      <ThemeToggle />
+      <div className="page">
+        <header className="page-header">
+          <div className="brand">
+            <span className="brand-mark" aria-hidden="true">
+              <span />
             </span>
-          </footer>
-        </div>
-      </PokemonFiltersProvider>
-    </ThemeProvider>
+            <div>
+              <span className="brand-name">Pokédex</span>
+              <span className="brand-caption">ANALYTICS</span>
+            </div>
+          </div>
+        </header>
+        <main id="main-content" tabIndex={-1}>
+          <Routes>
+            <Route
+              path="/"
+              element={<DashboardPage loadPokemon={loadPokemon} />}
+            />
+            <Route
+              path="/pokemon/:id"
+              element={
+                <PokemonDetailsPage getPokemonDetails={getPokemonDetails} />
+              }
+            />
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        </main>
+        <footer className="page-footer">
+          <span>Pokédex Analytics · Навчальний проєкт</span>
+          <span>
+            Pokémon належать їхнім правовласникам ·{' '}
+            <a href="https://pokeapi.co/docs/v2">PokeAPI</a>
+          </span>
+        </footer>
+      </div>
+    </ThemeRoot>
   );
 }

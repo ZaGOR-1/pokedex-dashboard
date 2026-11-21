@@ -128,7 +128,14 @@ describe('PokemonDashboard: фільтри й таблиця', () => {
           {
             ...mockPokemon[0]!,
             types: [],
-            stats: { hp: null, attack: null, defense: null },
+            stats: {
+              hp: null,
+              attack: null,
+              defense: null,
+              specialAttack: null,
+              specialDefense: null,
+              speed: null,
+            },
           },
         ]}
         loadedCount={1}

@@ -1,9 +1,9 @@
-import { useFormContext, useWatch } from 'react-hook-form';
+import { useDashboardStore } from '../app/dashboardStore';
+import { selectFilters } from '../app/dashboardSelectors';
 import type { LoadPokemon } from '../application/pokemon/loadPokemon';
 import { filterPokemon } from '../domain/pokemon/selectors';
 import { useDebounce } from '../hooks/useDebounce';
 import { useFetch } from '../hooks/useFetch';
-import type { PokemonFilterValues } from './PokemonFilterForm';
 import { PokemonDashboardView } from './PokemonDashboardView';
 
 interface PokemonDashboardProps {
@@ -12,11 +12,7 @@ interface PokemonDashboardProps {
 
 export function PokemonDashboard({ loadPokemon }: PokemonDashboardProps) {
   const { data, loading, error, refetch } = useFetch(loadPokemon, undefined);
-  const { control } = useFormContext<PokemonFilterValues>();
-  const [search, type, minHp] = useWatch({
-    control,
-    name: ['search', 'type', 'minHp'],
-  });
+  const { search, type, minHp } = useDashboardStore(selectFilters);
   const debouncedSearch = useDebounce(search, 400);
   // Після скидання порожній пошук застосовується одразу.
   const pokemon = filterPokemon(data?.pokemon ?? [], {
