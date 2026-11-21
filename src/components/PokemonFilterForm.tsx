@@ -1,26 +1,31 @@
 import { useId } from 'react';
-import { Controller } from 'react-hook-form';
-import type { Control } from 'react-hook-form';
+import { Controller, useForm } from 'react-hook-form';
+import { isValidMinHp, useDashboardStore } from '../app/dashboardStore';
+import type { PokemonFilterValues } from '../app/dashboardStore';
+import {
+  selectCanResetFilters,
+  selectFilters,
+} from '../app/dashboardSelectors';
 import { pokemonTypes } from '../domain/pokemon/types';
-import type { PokemonTypeFilter } from '../domain/pokemon/types';
 
-export interface PokemonFilterValues {
-  search: string;
-  type: PokemonTypeFilter;
-  minHp: string;
-}
+const hpError = 'Укажіть невід’ємне ціле число в допустимих межах.';
 
-interface PokemonFilterFormProps {
-  control: Control<PokemonFilterValues>;
-  onReset: () => void;
-  canReset: boolean;
-}
-
-export function PokemonFilterForm({
-  control,
-  onReset,
-  canReset,
-}: PokemonFilterFormProps) {
+export function PokemonFilterForm() {
+  const filters = useDashboardStore(selectFilters);
+  const canReset = useDashboardStore(selectCanResetFilters);
+  const setSearch = useDashboardStore((state) => state.setSearch);
+  const setType = useDashboardStore((state) => state.setType);
+  const setMinHp = useDashboardStore((state) => state.setMinHp);
+  const resetFilters = useDashboardStore((state) => state.resetFilters);
+  const {
+    control,
+    setError,
+    clearErrors,
+    formState: { errors },
+  } = useForm<PokemonFilterValues>({
+    values: filters,
+    mode: 'onChange',
+  });
   const id = useId();
 
   return (
@@ -30,7 +35,8 @@ export function PokemonFilterForm({
       onSubmit={(event) => event.preventDefault()}
       onReset={(event) => {
         event.preventDefault();
-        onReset();
+        clearErrors();
+        resetFilters();
       }}
     >
       <p id={`${id}-scope`} className="small muted filter-scope">
@@ -51,7 +57,10 @@ export function PokemonFilterForm({
                 placeholder="Наприклад, bulba"
                 autoComplete="off"
                 value={field.value}
-                onChange={field.onChange}
+                onChange={(event) => {
+                  field.onChange(event);
+                  setSearch(event.target.value);
+                }}
               />
             )}
           />
@@ -71,6 +80,7 @@ export function PokemonFilterForm({
                     (item) => item === event.target.value,
                   );
                   field.onChange(type ?? 'all');
+                  setType(type ?? 'all');
                 }}
               >
                 <option value="all">Усі типи</option>
@@ -88,6 +98,9 @@ export function PokemonFilterForm({
           <Controller
             name="minHp"
             control={control}
+            rules={{
+              validate: (value) => isValidMinHp(value) || hpError,
+            }}
             render={({ field }) => (
               <input
                 {...field}
@@ -96,15 +109,20 @@ export function PokemonFilterForm({
                 inputMode="numeric"
                 pattern="[0-9]*"
                 aria-describedby={`${id}-hp-hint`}
+                aria-invalid={Boolean(errors.minHp)}
                 placeholder="Без обмеження"
                 value={field.value}
                 onChange={(event) => {
                   const value = event.target.value;
-                  if (
-                    value === '' ||
-                    (/^\d+$/.test(value) && Number.isSafeInteger(Number(value)))
-                  ) {
+                  if (isValidMinHp(value)) {
+                    clearErrors('minHp');
                     field.onChange(value);
+                    setMinHp(value);
+                  } else {
+                    setError('minHp', {
+                      type: 'validate',
+                      message: hpError,
+                    });
                   }
                 }}
               />
@@ -117,6 +135,7 @@ export function PokemonFilterForm({
       </div>
       <p id={`${id}-hp-hint`} className="small muted filter-hint">
         HP: ціле число від 0. Порожнє поле прибирає обмеження.
+        {errors.minHp && <span role="alert"> {errors.minHp.message}</span>}
       </p>
     </form>
   );

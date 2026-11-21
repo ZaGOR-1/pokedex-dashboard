@@ -47,7 +47,7 @@ describe('App: дані API', () => {
       expectKpi(title, '—');
     await act(async () => pending.resolve(jsonResponse(apiList)));
     const table = await screen.findByRole('table');
-    expect(within(table).getAllByRole('columnheader')).toHaveLength(6);
+    expect(within(table).getAllByRole('columnheader')).toHaveLength(7);
     const row = within(table).getByRole('row', { name: /bulbasaur/ });
     expect(within(row).getByText('#001')).toBeInTheDocument();
     expect(within(row).getByText('grass')).toBeInTheDocument();

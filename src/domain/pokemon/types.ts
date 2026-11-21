@@ -29,15 +29,20 @@ export interface PokemonFilters {
   readonly minHp: number | null;
 }
 
+export interface BaseStats {
+  readonly hp: number | null;
+  readonly attack: number | null;
+  readonly defense: number | null;
+  readonly specialAttack: number | null;
+  readonly specialDefense: number | null;
+  readonly speed: number | null;
+}
+
 export interface Pokemon {
   readonly id: number;
   readonly name: string;
   readonly types: readonly PokemonType[];
-  readonly stats: {
-    readonly hp: number | null;
-    readonly attack: number | null;
-    readonly defense: number | null;
-  };
+  readonly stats: BaseStats;
 }
 
 export type PokemonSortField = 'id' | 'name' | 'hp';

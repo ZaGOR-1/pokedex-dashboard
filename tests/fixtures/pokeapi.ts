@@ -16,6 +16,9 @@ export const apiPokemon = [
       { slot: 1, type: { name: 'grass' } },
     ],
     stats: [
+      { base_stat: 65, stat: { name: 'special-attack' } },
+      { base_stat: 65, stat: { name: 'special-defense' } },
+      { base_stat: 45, stat: { name: 'speed' } },
       { base_stat: 49, stat: { name: 'defense' } },
       { base_stat: 45, stat: { name: 'hp' } },
       { base_stat: 49, stat: { name: 'attack' } },
@@ -26,6 +29,9 @@ export const apiPokemon = [
     name: 'charmander',
     types: [{ slot: 1, type: { name: 'fire' } }],
     stats: [
+      { base_stat: 60, stat: { name: 'special-attack' } },
+      { base_stat: 50, stat: { name: 'special-defense' } },
+      { base_stat: 65, stat: { name: 'speed' } },
       { base_stat: 39, stat: { name: 'hp' } },
       { base_stat: 52, stat: { name: 'attack' } },
       { base_stat: 43, stat: { name: 'defense' } },
@@ -36,6 +42,9 @@ export const apiPokemon = [
     name: 'squirtle',
     types: [{ slot: 1, type: { name: 'water' } }],
     stats: [
+      { base_stat: 50, stat: { name: 'special-attack' } },
+      { base_stat: 64, stat: { name: 'special-defense' } },
+      { base_stat: 43, stat: { name: 'speed' } },
       { base_stat: 44, stat: { name: 'hp' } },
       { base_stat: 48, stat: { name: 'attack' } },
       { base_stat: 65, stat: { name: 'defense' } },

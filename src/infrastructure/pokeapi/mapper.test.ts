@@ -10,7 +10,14 @@ describe('PokeAPI mapper', () => {
       id: 1,
       name: 'bulbasaur',
       types: ['grass', 'poison'],
-      stats: { hp: 45, attack: 49, defense: 49 },
+      stats: {
+        hp: 45,
+        attack: 49,
+        defense: 49,
+        specialAttack: 65,
+        specialDefense: 65,
+        speed: 45,
+      },
     });
     expect(dto).toEqual(before);
   });

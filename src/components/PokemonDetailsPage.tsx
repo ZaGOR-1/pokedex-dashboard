@@ -6,15 +6,8 @@ import {
 } from '../application/pokemon/getPokemonDetails';
 import type { EvolutionNode } from '../domain/pokemon/details';
 import { useFetch } from '../hooks/useFetch';
-
-const statLabels = {
-  hp: 'HP',
-  attack: 'Атака',
-  defense: 'Захист',
-  specialAttack: 'Спеціальна атака',
-  specialDefense: 'Спеціальний захист',
-  speed: 'Швидкість',
-} as const;
+import { statLabels } from './pokemonStatLabels';
+import { FavoriteButton } from './FavoriteButton';
 
 function PokemonImage({ url, name }: { url: string | null; name: string }) {
   const [failed, setFailed] = useState(false);
@@ -88,6 +81,7 @@ function PokemonDetails({
           <h1 id="pokemon-title" lang="en">
             {pokemon.name}
           </h1>
+          <FavoriteButton pokemonId={pokemon.id} pokemonName={pokemon.name} />
           <ul className="type-list" aria-label="Типи Pokémon">
             {pokemon.types.map((type) => (
               <li key={type} className={`type-badge type-${type}`} lang="en">
