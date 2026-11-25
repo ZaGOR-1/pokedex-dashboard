@@ -163,31 +163,25 @@ describe('ЛР №5: спільний стан та графіки', () => {
   it('обране синхронізоване між таблицею і деталями та не залежить від фільтра', async () => {
     await renderDashboard();
     const user = userEvent.setup();
-    await user.click(
-      screen.getByRole('button', { name: 'Додати bulbasaur до обраного' }),
-    );
+    await user.click(screen.getByRole('button', { name: 'Обране: bulbasaur' }));
     fireEvent.change(screen.getByLabelText('Тип Pokémon'), {
       target: { value: 'fire' },
     });
     expect(useDashboardStore.getState().favoriteIds).toEqual([1]);
     await user.click(screen.getByRole('button', { name: 'Скинути фільтри' }));
     expect(
-      screen.getByRole('button', { name: 'Видалити bulbasaur з обраного' }),
+      screen.getByRole('button', { name: 'Обране: bulbasaur' }),
     ).toHaveAttribute('aria-pressed', 'true');
     await user.click(screen.getByRole('radio', { name: 'Лінійний' }));
     await user.click(screen.getByRole('link', { name: 'bulbasaur' }));
     await screen.findByRole('heading', { name: 'bulbasaur' });
-    await user.click(
-      screen.getByRole('button', { name: 'Видалити bulbasaur з обраного' }),
-    );
+    await user.click(screen.getByRole('button', { name: 'Обране: bulbasaur' }));
     expect(useDashboardStore.getState().favoriteIds).toEqual([]);
-    await user.click(
-      screen.getByRole('button', { name: 'Додати bulbasaur до обраного' }),
-    );
+    await user.click(screen.getByRole('button', { name: 'Обране: bulbasaur' }));
     await user.click(screen.getByRole('link', { name: /Назад до дашборду/ }));
     await screen.findByRole('table');
     expect(
-      screen.getByRole('button', { name: 'Видалити bulbasaur з обраного' }),
+      screen.getByRole('button', { name: 'Обране: bulbasaur' }),
     ).toHaveAttribute('aria-pressed', 'true');
     expect(screen.getByRole('radio', { name: 'Лінійний' })).toBeChecked();
   });

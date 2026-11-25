@@ -15,24 +15,24 @@ describe('FavoriteButton', () => {
       </>,
     );
     await user.click(
-      screen.getAllByRole('button', { name: 'Додати eevee до обраного' })[0]!,
+      screen.getAllByRole('button', { name: 'Обране: eevee' })[0]!,
     );
     expect(
       screen.getAllByRole('button', {
-        name: 'Видалити eevee з обраного',
+        name: 'Обране: eevee',
         pressed: true,
       }),
     ).toHaveLength(2);
     expect(
-      screen.getByRole('button', { name: 'Додати pikachu до обраного' }),
+      screen.getByRole('button', { name: 'Обране: pikachu' }),
     ).toHaveAttribute('aria-pressed', 'false');
     expect(useDashboardStore.getState().favoriteIds).toEqual([133]);
     await user.click(
-      screen.getAllByRole('button', { name: 'Видалити eevee з обраного' })[1]!,
+      screen.getAllByRole('button', { name: 'Обране: eevee' })[1]!,
     );
     expect(
       screen.getAllByRole('button', {
-        name: 'Додати eevee до обраного',
+        name: 'Обране: eevee',
         pressed: false,
       }),
     ).toHaveLength(2);
@@ -42,11 +42,12 @@ describe('FavoriteButton', () => {
   it.each(['{Enter}', ' '])('підтримує клавішу %s', async (key) => {
     const user = userEvent.setup();
     render(<FavoriteButton pokemonId={133} pokemonName="eevee" />);
-    const button = screen.getByRole('button');
+    const button = screen.getByRole('button', { name: 'Обране: eevee' });
     await user.tab();
     expect(button).toHaveFocus();
     await user.keyboard(key);
     expect(button).toHaveAttribute('aria-pressed', 'true');
+    expect(button).toHaveAccessibleName('Обране: eevee');
     await user.keyboard(key);
     expect(button).toHaveAttribute('aria-pressed', 'false');
   });

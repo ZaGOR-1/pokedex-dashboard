@@ -147,10 +147,9 @@ describe('PokemonDashboard: фільтри й таблиця', () => {
   it('показує новий тип із базовим бейджем, залишаючи 18 типів у фільтрі', async () => {
     const user = userEvent.setup();
     await renderList([{ ...mockPokemon[0]!, types: ['grass', 'stellar'] }]);
-    expect(screen.getByText('stellar')).toHaveClass(
-      'type-badge',
-      'type-stellar',
-    );
+    const types = screen.getByRole('list', { name: /Типи/ });
+    expect(within(types).getByText('stellar')).toHaveClass('ui-badge--neutral');
+    expect(within(types).getByText('grass')).toHaveClass('ui-badge--positive');
     const select = screen.getByRole('combobox', { name: 'Тип Pokémon' });
     expect(within(select).getAllByRole('option')).toHaveLength(19);
     expect(

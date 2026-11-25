@@ -1,3 +1,4 @@
+import { Card } from '../ui/molecules/Card';
 import { useId } from 'react';
 import { useDashboardStore } from '../app/dashboardStore';
 import { selectChartType } from '../app/dashboardSelectors';
@@ -16,7 +17,7 @@ export function PokemonStatsWidget({
   const setChartType = useDashboardStore((state) => state.setChartType);
 
   return (
-    <section className="panel stats-widget" aria-labelledby={`${id}-title`}>
+    <Card className="stats-widget" aria-labelledby={`${id}-title`}>
       <h2 id={`${id}-title`}>Середні базові характеристики</h2>
       <p className="muted chart-scope">
         Pokémon після фільтрів: {pokemon.length}. Статистика лише серед перших
@@ -34,6 +35,6 @@ export function PokemonStatsWidget({
         Лінія показує профіль шести характеристик, а не зміни в часі. Середнє
         рахується окремо з відомих значень кожної характеристики.
       </p>
-    </section>
+    </Card>
   );
 }

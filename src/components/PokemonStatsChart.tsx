@@ -18,6 +18,17 @@ interface PokemonStatsChartProps {
   type: ChartType;
 }
 
+// Recharts очікує числа для розрахунку області графіка й осей.
+const chartLayout = {
+  height: 300,
+  margin: { top: 12, right: 12, bottom: 12, left: 0 },
+  gridDash: '3 3',
+  labelAngle: -30,
+  xAxisHeight: 100,
+  yAxisWidth: 38,
+  lineWidth: 2,
+};
+
 const formatValue = (value: number) =>
   value.toLocaleString('uk-UA', { maximumFractionDigits: 1 });
 
@@ -31,10 +42,14 @@ export function PokemonStatsChart({ data, type }: PokemonStatsChartProps) {
   return (
     <>
       <div className="stats-chart" data-chart-type={type}>
-        <ResponsiveContainer width="100%" height={300} minWidth={0}>
+        <ResponsiveContainer
+          width="100%"
+          height={chartLayout.height}
+          minWidth={0}
+        >
           <Chart
             data={chartData}
-            margin={{ top: 12, right: 12, bottom: 12, left: 0 }}
+            margin={chartLayout.margin}
             accessibilityLayer
             title={
               type === 'bar'
@@ -42,17 +57,17 @@ export function PokemonStatsChart({ data, type }: PokemonStatsChartProps) {
                 : 'Лінійний профіль характеристик'
             }
           >
-            <CartesianGrid strokeDasharray="3 3" />
+            <CartesianGrid strokeDasharray={chartLayout.gridDash} />
             <XAxis
               dataKey="label"
               interval={0}
-              angle={-30}
+              angle={chartLayout.labelAngle}
               textAnchor="end"
-              height={100}
-              tick={{ fontSize: 11, fill: 'var(--chart-text)' }}
+              height={chartLayout.xAxisHeight}
+              tick={{ fill: 'var(--chart-text)' }}
             />
             <YAxis
-              width={38}
+              width={chartLayout.yAxisWidth}
               domain={[0, 'auto']}
               tick={{ fill: 'var(--chart-text)' }}
             />
@@ -78,7 +93,7 @@ export function PokemonStatsChart({ data, type }: PokemonStatsChartProps) {
                 type="linear"
                 dataKey="value"
                 stroke="var(--chart-color)"
-                strokeWidth={2}
+                strokeWidth={chartLayout.lineWidth}
                 connectNulls={false}
                 isAnimationActive={false}
               />

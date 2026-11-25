@@ -1,3 +1,5 @@
+import { Card } from '../ui/molecules/Card';
+import { Button } from '../ui/atoms/Button';
 import { useId, useState } from 'react';
 
 interface CounterProps {
@@ -12,32 +14,34 @@ export function Counter({ title }: CounterProps) {
   const titleId = useId();
 
   return (
-    <section className="panel counter" aria-labelledby={titleId}>
+    <Card className="counter" aria-labelledby={titleId}>
       <p className="eyebrow">МАЛЕНЬКА КОМАНДА, ВЕЛИКІ ПЛАНИ</p>
       <h2 id={titleId}>{title}</h2>
       <p className="muted">Вибери кількість учасників майбутньої команди.</p>
       <div className="counter-controls">
-        <button
+        <Button
           type="button"
-          className="step-button"
+          variant="soft"
+          size="square"
           aria-label="Зменшити кількість"
           disabled={count === minCount}
           onClick={() => setCount((current) => Math.max(minCount, current - 1))}
         >
           −
-        </button>
+        </Button>
         <output aria-label="Кількість у команді" aria-live="polite">
           {count}
         </output>
-        <button
+        <Button
           type="button"
-          className="step-button"
+          variant="soft"
+          size="square"
           aria-label="Збільшити кількість"
           disabled={count === maxCount}
           onClick={() => setCount((current) => Math.min(maxCount, current + 1))}
         >
           +
-        </button>
+        </Button>
       </div>
       <meter
         min={minCount}
@@ -50,16 +54,16 @@ export function Counter({ title }: CounterProps) {
       <p className="counter-caption">
         {count} із {maxCount} місць · межі 0–6
       </p>
-      <button
+      <Button
         type="button"
-        className="secondary-button reset-counter"
+        className="reset-counter"
         onClick={() => setCount(minCount)}
       >
         Скинути лічильник
-      </button>
+      </Button>
       <p className="small muted">
         Це окремий лічильник: він не додає Pokémon зі списку до команди.
       </p>
-    </section>
+    </Card>
   );
 }

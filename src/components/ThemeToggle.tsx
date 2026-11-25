@@ -1,3 +1,4 @@
+import { Button } from '../ui/atoms/Button';
 import { useDashboardStore } from '../app/dashboardStore';
 import { selectTheme } from '../app/dashboardSelectors';
 
@@ -8,7 +9,7 @@ export function ThemeToggle() {
 
   return (
     <div className="theme-control">
-      <button
+      <Button
         type="button"
         className="theme-button"
         aria-pressed={isDark}
@@ -16,7 +17,7 @@ export function ThemeToggle() {
       >
         <span aria-hidden="true">{isDark ? '☾' : '☀'}</span>
         Темна тема
-      </button>
+      </Button>
     </div>
   );
 }

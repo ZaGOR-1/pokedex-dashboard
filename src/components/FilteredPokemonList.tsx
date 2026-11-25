@@ -1,3 +1,7 @@
+import { Button } from '../ui/atoms/Button';
+import { StatusMessage } from '../ui/molecules/StatusMessage';
+import { PokemonTypeList } from './PokemonTypeList';
+import { DataTable } from '../ui/organisms/DataTable';
 import { FavoriteButton } from './FavoriteButton';
 import { useState } from 'react';
 import { Link } from 'react-router';
@@ -50,106 +54,89 @@ export function FilteredPokemonList({
         Показано {visiblePokemon.length} із {loadedCount}
       </p>
       {visiblePokemon.length > 0 ? (
-        <div
-          className="table-scroll"
-          role="region"
-          aria-label="Таблиця Pokémon із горизонтальним прокручуванням"
-          tabIndex={0}
+        <DataTable
+          scrollLabel="Таблиця Pokémon із горизонтальним прокручуванням"
+          caption="Базові характеристики Pokémon. Натисни ID, назву або HP для сортування."
+          columns={
+            <tr>
+              <th scope="col" aria-sort={getAriaSort('id')}>
+                <Button
+                  className="sort-button"
+                  variant="text"
+                  size="small"
+                  onClick={() => changeSort('id')}
+                >
+                  ID<span aria-hidden="true">{sortSymbol('id')}</span>
+                </Button>
+              </th>
+              <th scope="col" aria-sort={getAriaSort('name')}>
+                <Button
+                  className="sort-button"
+                  variant="text"
+                  size="small"
+                  onClick={() => changeSort('name')}
+                >
+                  Назва<span aria-hidden="true">{sortSymbol('name')}</span>
+                </Button>
+              </th>
+              <th scope="col">Типи</th>
+              <th scope="col" aria-sort={getAriaSort('hp')}>
+                <Button
+                  className="sort-button"
+                  variant="text"
+                  size="small"
+                  onClick={() => changeSort('hp')}
+                >
+                  HP<span aria-hidden="true">{sortSymbol('hp')}</span>
+                </Button>
+              </th>
+              <th scope="col">Атака</th>
+              <th scope="col">Захист</th>
+              <th scope="col">Обране</th>
+            </tr>
+          }
         >
-          <table className="pokemon-table">
-            <caption>
-              Базові характеристики Pokémon. Натисни ID, назву або HP для
-              сортування.
-            </caption>
-            <thead>
-              <tr>
-                <th scope="col" aria-sort={getAriaSort('id')}>
-                  <button
-                    className="sort-button"
-                    type="button"
-                    onClick={() => changeSort('id')}
-                  >
-                    ID<span aria-hidden="true">{sortSymbol('id')}</span>
-                  </button>
-                </th>
-                <th scope="col" aria-sort={getAriaSort('name')}>
-                  <button
-                    className="sort-button"
-                    type="button"
-                    onClick={() => changeSort('name')}
-                  >
-                    Назва<span aria-hidden="true">{sortSymbol('name')}</span>
-                  </button>
-                </th>
-                <th scope="col">Типи</th>
-                <th scope="col" aria-sort={getAriaSort('hp')}>
-                  <button
-                    className="sort-button"
-                    type="button"
-                    onClick={() => changeSort('hp')}
-                  >
-                    HP<span aria-hidden="true">{sortSymbol('hp')}</span>
-                  </button>
-                </th>
-                <th scope="col">Атака</th>
-                <th scope="col">Захист</th>
-                <th scope="col">Обране</th>
-              </tr>
-            </thead>
-            <tbody>
-              {visiblePokemon.map((item) => (
-                <tr key={item.id}>
-                  <td className="pokemon-number">
-                    #{String(item.id).padStart(3, '0')}
-                  </td>
-                  <th scope="row" className="pokemon-name" lang="en">
-                    <Link to={`/pokemon/${item.id}`}>{item.name}</Link>
-                  </th>
-                  <td>
-                    {item.types.length === 0 ? (
-                      '—'
-                    ) : (
-                      <ul
-                        className="type-list"
-                        aria-label={`Типи ${item.name}`}
-                      >
-                        {item.types.map((type) => (
-                          <li
-                            key={type}
-                            className={`type-badge type-${type}`}
-                            lang="en"
-                          >
-                            {type}
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </td>
-                  <td>{item.stats.hp ?? '—'}</td>
-                  <td>{item.stats.attack ?? '—'}</td>
-                  <td>{item.stats.defense ?? '—'}</td>
-                  <td>
-                    <FavoriteButton
-                      pokemonId={item.id}
-                      pokemonName={item.name}
-                    />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+          {visiblePokemon.map((item) => (
+            <tr key={item.id}>
+              <td className="pokemon-number">
+                #{String(item.id).padStart(3, '0')}
+              </td>
+              <th scope="row" className="pokemon-name" lang="en">
+                <Link to={`/pokemon/${item.id}`}>{item.name}</Link>
+              </th>
+              <td>
+                {item.types.length === 0 ? (
+                  '—'
+                ) : (
+                  <PokemonTypeList
+                    types={item.types}
+                    label={`Типи ${item.name}`}
+                  />
+                )}
+              </td>
+              <td>{item.stats.hp ?? '—'}</td>
+              <td>{item.stats.attack ?? '—'}</td>
+              <td>{item.stats.defense ?? '—'}</td>
+              <td>
+                <FavoriteButton pokemonId={item.id} pokemonName={item.name} />
+              </td>
+            </tr>
+          ))}
+        </DataTable>
       ) : (
-        <div className="empty-state">
-          <span aria-hidden="true">⌕</span>
-          <h3>Pokémon не знайдено</h3>
+        <StatusMessage
+          variant="empty"
+          heading="Pokémon не знайдено"
+          headingLevel="h3"
+          framed={false}
+        >
           <p className="muted">
             Серед завантажених записів немає Pokémon за цими фільтрами.
           </p>
           <p className="small muted">
             Зміни назву, тип чи HP або скинь фільтри.
           </p>
-        </div>
+        </StatusMessage>
       )}
       <p className="list-note small muted">
         Pokémon із двома типами входить до кожного відповідного фільтра.

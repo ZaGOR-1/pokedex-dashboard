@@ -13,3 +13,4 @@ coverage/
 _vite_init/
 playwright-report/
 test-results/
+storybook-static/

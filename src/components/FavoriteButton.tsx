@@ -1,3 +1,4 @@
+import { Button } from '../ui/atoms/Button';
 import { useDashboardStore } from '../app/dashboardStore';
 import { selectIsFavorite } from '../app/dashboardSelectors';
 
@@ -17,17 +18,18 @@ export function FavoriteButton({
   const removeFavorite = useDashboardStore((state) => state.removeFavorite);
 
   return (
-    <button
+    <Button
+      size="small"
       type="button"
       className="favorite-button"
       aria-pressed={isFavorite}
-      aria-label={`${isFavorite ? 'Видалити' : 'Додати'} ${pokemonName} ${isFavorite ? 'з обраного' : 'до обраного'}`}
+      aria-label={`Обране: ${pokemonName}`}
       onClick={() =>
         isFavorite ? removeFavorite(pokemonId) : addFavorite(pokemonId)
       }
     >
       <span aria-hidden="true">{isFavorite ? '★' : '☆'}</span>
-      <span>{isFavorite ? 'В обраному' : 'До обраного'}</span>
-    </button>
+      <span>Обране</span>
+    </Button>
   );
 }
