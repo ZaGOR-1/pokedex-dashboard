@@ -346,10 +346,10 @@ test('обране, режим і тема між маршрутами; reload �
   const requests = await mockApi(page);
   await page.goto('/');
   await expect(page.getByRole('table')).toBeVisible();
-  await page.getByRole('button', { name: 'Додати eevee до обраного' }).focus();
+  await page.getByRole('button', { name: 'Обране: eevee' }).focus();
   await page.keyboard.press('Enter');
   await expect(
-    page.getByRole('button', { name: 'Видалити eevee з обраного' }),
+    page.getByRole('button', { name: 'Обране: eevee' }),
   ).toHaveAttribute('aria-pressed', 'true');
   await page.getByRole('radio', { name: 'Лінійний' }).check();
   await page.getByRole('button', { name: 'Темна тема' }).click();
@@ -359,12 +359,12 @@ test('обране, режим і тема між маршрутами; reload �
     page.getByRole('heading', { name: 'eevee', exact: true }),
   ).toBeVisible();
   await expect(
-    page.getByRole('button', { name: 'Видалити eevee з обраного' }),
+    page.getByRole('button', { name: 'Обране: eevee' }),
   ).toHaveAttribute('aria-pressed', 'true');
-  await page.getByRole('button', { name: 'Видалити eevee з обраного' }).click();
+  await page.getByRole('button', { name: 'Обране: eevee' }).click();
   await page.getByRole('link', { name: /Назад до дашборду/ }).click();
   await expect(
-    page.getByRole('button', { name: 'Додати eevee до обраного' }),
+    page.getByRole('button', { name: 'Обране: eevee' }),
   ).toHaveAttribute('aria-pressed', 'false');
   await expect(page.getByRole('radio', { name: 'Лінійний' })).toBeChecked();
   await expect(page.getByRole('combobox')).toHaveValue('normal');
@@ -373,7 +373,7 @@ test('обране, режим і тема між маршрутами; reload �
     'dark',
   );
   expect(requests).toHaveLength(8);
-  await page.getByRole('button', { name: 'Додати eevee до обраного' }).click();
+  await page.getByRole('button', { name: 'Обране: eevee' }).click();
   await page.reload();
   await expect(page.getByRole('table')).toBeVisible();
   await expect(page.getByRole('radio', { name: 'Стовпчиковий' })).toBeChecked();
@@ -383,7 +383,7 @@ test('обране, режим і тема між маршрутами; reload �
     'light',
   );
   await expect(
-    page.getByRole('button', { name: 'Додати eevee до обраного' }),
+    page.getByRole('button', { name: 'Обране: eevee' }),
   ).toHaveAttribute('aria-pressed', 'false');
   expect(requests).toHaveLength(13);
 });
@@ -397,23 +397,23 @@ test('прямі деталі: обране до завантаження спи
     page.getByRole('heading', { name: 'eevee', exact: true }),
   ).toBeVisible();
   expect(requests).toHaveLength(3);
-  await page.getByRole('button', { name: 'Додати eevee до обраного' }).click();
+  await page.getByRole('button', { name: 'Обране: eevee' }).click();
   await page.getByRole('link', { name: /Назад до дашборду/ }).click();
   await expect(page.getByRole('table')).toBeVisible();
   const button = page.getByRole('button', {
-    name: 'Видалити eevee з обраного',
+    name: 'Обране: eevee',
   });
   await button.focus();
   await page.keyboard.press('Space');
-  await expect(button).toHaveCount(0);
+  await expect(button).toHaveAttribute('aria-pressed', 'false');
   await page.getByRole('link', { name: 'eevee', exact: true }).click();
   await expect(
-    page.getByRole('button', { name: 'Додати eevee до обраного' }),
+    page.getByRole('button', { name: 'Обране: eevee' }),
   ).toHaveAttribute('aria-pressed', 'false');
-  await page.getByRole('button', { name: 'Додати eevee до обраного' }).click();
+  await page.getByRole('button', { name: 'Обране: eevee' }).click();
   await page.reload();
   await expect(
-    page.getByRole('button', { name: 'Додати eevee до обраного' }),
+    page.getByRole('button', { name: 'Обране: eevee' }),
   ).toHaveAttribute('aria-pressed', 'false');
   expect(requests).toHaveLength(14);
 });
@@ -454,4 +454,76 @@ test('форма: курсор посередині тексту, валідац
   await expect(
     page.getByRole('status', { name: 'Кількість результатів' }),
   ).toHaveText('Показано 4 із 4');
+});
+
+test('дизайн-система: клавіатурний фокус і кольори позначок в обох темах', async ({
+  page,
+}) => {
+  await mockApi(page);
+  await page.setViewportSize({ width: 375, height: 900 });
+  await page.goto('/');
+  const table = page.getByRole('table');
+  const scrollRegion = page.getByRole('region', {
+    name: 'Таблиця Pokémon із горизонтальним прокручуванням',
+  });
+  const search = page.getByRole('searchbox', { name: 'Назва Pokémon' });
+  const theme = page.getByRole('button', { name: 'Темна тема' });
+  const reset = page.getByRole('button', { name: 'Скинути фільтри' });
+  const badges = table.locator('.ui-badge');
+
+  await expect(table).toBeVisible();
+  await expect(reset).toBeDisabled();
+  const colors = [];
+  for (const mode of ['light', 'dark']) {
+    await theme.focus();
+    if (mode === 'dark') await page.keyboard.press('Space');
+    await expect(theme).toHaveAttribute(
+      'aria-pressed',
+      String(mode === 'dark'),
+    );
+    await expect(page.locator('[data-theme]')).toHaveAttribute(
+      'data-theme',
+      mode,
+    );
+
+    await search.focus();
+    await page.keyboard.press('Shift+Tab');
+    await page.keyboard.press('Tab');
+    await expect(search).toBeFocused();
+    await expect(search).toHaveCSS('outline-style', 'solid');
+
+    await scrollRegion.focus();
+    await expect(scrollRegion).toBeFocused();
+    expect(
+      await scrollRegion.evaluate(
+        (node) => node.scrollWidth > node.clientWidth,
+      ),
+    ).toBe(true);
+
+    colors.push(
+      await badges.evaluateAll((nodes) =>
+        nodes.map((node) => {
+          const { color, backgroundColor } = getComputedStyle(node);
+          return [color, backgroundColor];
+        }),
+      ),
+    );
+  }
+  expect(colors[0]?.length).toBeGreaterThan(0);
+  expect(colors[1]).not.toEqual(colors[0]);
+});
+
+test('дизайн-система: спінер зупиняється за зменшеного руху', async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await page.route('https://pokeapi.co/api/v2/**', () => {});
+  await page.goto('/');
+  const status = page
+    .getByRole('status')
+    .filter({ hasText: 'Завантаження Pokémon' });
+  const spinner = status.locator('.ui-spinner');
+  await expect(status).toBeVisible();
+  await expect(spinner).toHaveAttribute('aria-hidden', 'true');
+  await expect(spinner).toHaveCSS('animation-name', 'none');
 });

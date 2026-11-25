@@ -135,7 +135,7 @@ describe('App: нові типи API', () => {
     );
     render(<App loadPokemon={createPokeApiClient(fetcher).loadPokemon} />);
     const table = await screen.findByRole('table');
-    expect(within(table).getByText('stellar')).toHaveClass('type-badge');
+    expect(within(table).getByText('stellar')).toHaveClass('ui-badge--neutral');
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     expectKpi('Pokémon у вибірці', '1');
     expectKpi('Типів у вибірці', '2');

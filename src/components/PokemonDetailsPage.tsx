@@ -1,3 +1,7 @@
+import { Button } from '../ui/atoms/Button';
+import { Card } from '../ui/molecules/Card';
+import { StatusMessage } from '../ui/molecules/StatusMessage';
+import { PokemonTypeList } from './PokemonTypeList';
 import { useState } from 'react';
 import { Link, useParams } from 'react-router';
 import {
@@ -12,13 +16,7 @@ import { FavoriteButton } from './FavoriteButton';
 function PokemonImage({ url, name }: { url: string | null; name: string }) {
   const [failed, setFailed] = useState(false);
   return url && !failed ? (
-    <img
-      src={url}
-      alt={name}
-      width="160"
-      height="160"
-      onError={() => setFailed(true)}
-    />
+    <img src={url} alt={name} onError={() => setFailed(true)} />
   ) : (
     <p className="muted">Зображення недоступне.</p>
   );
@@ -50,31 +48,41 @@ function PokemonDetails({
 
   if (loading)
     return (
-      <section className="panel empty-state" role="status">
-        <h1>Завантаження деталей Pokémon…</h1>
-      </section>
+      <StatusMessage
+        variant="loading"
+        headingLevel="h1"
+        heading="Завантаження деталей Pokémon…"
+      />
     );
   if (error)
     return (
-      <section className="panel empty-state" role="alert">
-        <h1>Не вдалося завантажити деталі</h1>
+      <StatusMessage
+        variant="error"
+        headingLevel="h1"
+        heading="Не вдалося завантажити деталі"
+      >
         <p>{error}</p>
-        <button className="secondary-button" type="button" onClick={refetch}>
-          Повторити запит
-        </button>
-      </section>
+        <Button onClick={refetch}>Повторити запит</Button>
+      </StatusMessage>
     );
   if (!data)
     return (
-      <section className="panel empty-state" role="status">
-        <h1>Pokémon не знайдено</h1>
+      <StatusMessage
+        variant="empty"
+        headingLevel="h1"
+        heading="Pokémon не знайдено"
+      >
         <p>Запис із ID {id} відсутній у PokeAPI.</p>
-      </section>
+      </StatusMessage>
     );
 
   const { pokemon, evolution, evolutionError } = data;
   return (
-    <article className="panel details-panel" aria-labelledby="pokemon-title">
+    <Card
+      as="article"
+      className="details-panel"
+      aria-labelledby="pokemon-title"
+    >
       <header className="details-heading">
         <div>
           <p className="eyebrow">POKÉMON #{pokemon.id}</p>
@@ -82,14 +90,11 @@ function PokemonDetails({
             {pokemon.name}
           </h1>
           <FavoriteButton pokemonId={pokemon.id} pokemonName={pokemon.name} />
-          <ul className="type-list" aria-label="Типи Pokémon">
-            {pokemon.types.map((type) => (
-              <li key={type} className={`type-badge type-${type}`} lang="en">
-                {type}
-              </li>
-            ))}
-          </ul>
-          {pokemon.types.length === 0 && <p>Типи невідомі.</p>}
+          {pokemon.types.length > 0 ? (
+            <PokemonTypeList types={pokemon.types} label="Типи Pokémon" />
+          ) : (
+            <p>Типи невідомі.</p>
+          )}
         </div>
         <PokemonImage
           key={pokemon.spriteUrl}
@@ -145,7 +150,7 @@ function PokemonDetails({
           <p>Інформація про ланцюжок еволюцій недоступна.</p>
         )}
       </section>
-    </article>
+    </Card>
   );
 }
 
@@ -162,13 +167,16 @@ export function PokemonDetailsPage({
         ← Назад до дашборду
       </Link>
       {id === null ? (
-        <section className="panel empty-state" role="status">
-          <h1>Некоректний ID Pokémon</h1>
+        <StatusMessage
+          variant="empty"
+          headingLevel="h1"
+          heading="Некоректний ID Pokémon"
+        >
           <p>
             Укажіть додатне ціле число без початкових нулів, наприклад
             /pokemon/25.
           </p>
-        </section>
+        </StatusMessage>
       ) : (
         <PokemonDetails id={id} getPokemonDetails={getPokemonDetails} />
       )}

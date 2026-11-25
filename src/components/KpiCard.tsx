@@ -1,3 +1,5 @@
+import { Card } from '../ui/molecules/Card';
+import { Badge } from '../ui/atoms/Badge';
 interface KpiCardProps {
   title: string;
   value: number | string;
@@ -16,7 +18,7 @@ export function KpiCard({
   const trendSymbol = trend === 'up' ? '↗' : trend === 'down' ? '↘' : '−';
 
   return (
-    <article className="kpi-card" aria-label={title}>
+    <Card as="article" className="kpi-card" aria-label={title}>
       <h3>{title}</h3>
       <p className="kpi-value">{value}</p>
       {description && (
@@ -24,13 +26,21 @@ export function KpiCard({
       )}
       {change !== undefined && (
         <p className="kpi-change">
-          <span className={`trend trend-${trend}`}>
+          <Badge
+            tone={
+              trend === 'up'
+                ? 'positive'
+                : trend === 'down'
+                  ? 'danger'
+                  : 'neutral'
+            }
+          >
             <span aria-hidden="true">{trendSymbol} </span>
             {change}
-          </span>
+          </Badge>
           <span>демонстраційна зміна</span>
         </p>
       )}
-    </article>
+    </Card>
   );
 }

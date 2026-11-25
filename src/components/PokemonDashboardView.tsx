@@ -1,3 +1,7 @@
+import { Badge } from '../ui/atoms/Badge';
+import { Button } from '../ui/atoms/Button';
+import { Card } from '../ui/molecules/Card';
+import { StatusMessage } from '../ui/molecules/StatusMessage';
 import { getPokemonSummary } from '../domain/pokemon/selectors';
 import type { Pokemon } from '../domain/pokemon/types';
 import { Counter } from './Counter';
@@ -65,37 +69,31 @@ export function PokemonDashboardView({
       </section>
       {ready && <PokemonStatsWidget pokemon={pokemon} />}
       <div className="dashboard-grid">
-        <div aria-busy={loading}>
+        <div>
           {loading ? (
-            <section className="panel empty-state" role="status">
-              <h2>Завантаження Pokémon…</h2>
+            <StatusMessage variant="loading" heading="Завантаження Pokémon…">
               <p className="muted">Отримуємо список і базові характеристики.</p>
-            </section>
+            </StatusMessage>
           ) : error !== null ? (
-            <section className="panel empty-state" role="alert">
-              <h2>Не вдалося завантажити Pokémon</h2>
+            <StatusMessage
+              variant="error"
+              heading="Не вдалося завантажити Pokémon"
+            >
               <p className="muted">{error}</p>
               <p className="muted">Перевірте з’єднання та спробуйте ще раз.</p>
-              <button
-                type="button"
-                className="secondary-button"
-                onClick={onRetry}
-              >
-                Повторити запит
-              </button>
-            </section>
+              <Button onClick={onRetry}>Повторити запит</Button>
+            </StatusMessage>
           ) : loadedCount === 0 ? (
-            <section className="panel empty-state" role="status">
-              <h2>PokeAPI повернув порожній список</h2>
+            <StatusMessage
+              variant="empty"
+              heading="PokeAPI повернув порожній список"
+            >
               <p className="muted">
                 На першій сторінці немає записів для показу.
               </p>
-            </section>
+            </StatusMessage>
           ) : (
-            <section
-              className="panel pokemon-panel"
-              aria-labelledby="list-title"
-            >
+            <Card className="pokemon-panel" aria-labelledby="list-title">
               <div className="section-heading">
                 <div>
                   <h2 id="list-title">Знайомі з Канто</h2>
@@ -103,19 +101,19 @@ export function PokemonDashboardView({
                     Порівнюй Pokémon у завантаженій вибірці.
                   </p>
                 </div>
-                <span className="sample-badge">PokeAPI</span>
+                <Badge tone="info">PokeAPI</Badge>
               </div>
               <PokemonFilterForm />
               <FilteredPokemonList
                 pokemon={pokemon}
                 loadedCount={loadedCount}
               />
-            </section>
+            </Card>
           )}
         </div>
         <aside className="sidebar" aria-label="Планування команди">
           <Counter title="Місця в команді" />
-          <section className="field-note" aria-labelledby="note-title">
+          <Card tone="info" className="field-note" aria-labelledby="note-title">
             <span className="note-symbol" aria-hidden="true">
               ✦
             </span>
@@ -124,7 +122,7 @@ export function PokemonDashboardView({
               Bulbasaur має типи grass і poison. Спробуй обидва фільтри — він
               буде в кожному списку.
             </p>
-          </section>
+          </Card>
         </aside>
       </div>
     </>

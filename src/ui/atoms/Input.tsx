@@ -1,0 +1,12 @@
+import type { ComponentProps } from 'react';
+
+type InputProps = ComponentProps<'input'>;
+
+export function Input({ className, ...props }: InputProps) {
+  return (
+    <input
+      {...props}
+      className={className ? `ui-input ${className}` : 'ui-input'}
+    />
+  );
+}

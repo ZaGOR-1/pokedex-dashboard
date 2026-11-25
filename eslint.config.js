@@ -7,7 +7,7 @@ import globals from 'globals';
 import tseslint from 'typescript-eslint';
 
 export default defineConfig([
-  globalIgnores(['dist', 'coverage']),
+  globalIgnores(['dist', 'coverage', 'storybook-static']),
   {
     files: ['**/*.{ts,tsx}'],
     extends: [
@@ -19,7 +19,7 @@ export default defineConfig([
     languageOptions: { globals: globals.browser },
   },
   {
-    files: ['**/*.test.{ts,tsx}', 'tests/**/*.{ts,tsx}'],
+    files: ['**/*.test.{ts,tsx}', '**/*.stories.tsx', 'tests/**/*.{ts,tsx}'],
     rules: { 'react-refresh/only-export-components': 'off' },
   },
   prettier,

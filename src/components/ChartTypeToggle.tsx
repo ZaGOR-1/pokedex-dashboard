@@ -1,3 +1,4 @@
+import { Input } from '../ui/atoms/Input';
 import { useId } from 'react';
 import type { ChartType } from '../app/dashboardStore';
 
@@ -13,7 +14,7 @@ export function ChartTypeToggle({ value, onChange }: ChartTypeToggleProps) {
       <legend>Тип графіка</legend>
       {(['bar', 'line'] as const).map((type) => (
         <label key={type}>
-          <input
+          <Input
             type="radio"
             name={`${id}-chart-type`}
             value={type}
