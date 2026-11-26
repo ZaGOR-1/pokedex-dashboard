@@ -5,7 +5,7 @@ import {
   apiSpecies,
   eeveeEvolutions,
 } from '../fixtures/details';
-import { apiPokemon } from '../fixtures/pokeapi';
+import { apiPokemon, pokemonTypeResponse } from '../fixtures/pokeapi';
 
 async function mockApi(page: Page) {
   const requests: string[] = [];
@@ -14,6 +14,10 @@ async function mockApi(page: Page) {
     const url = new URL(route.request().url());
     requests.push(url.pathname + url.search);
     const last = url.pathname.split('/').filter(Boolean).at(-1);
+    if (url.pathname.includes('/type/') && last)
+      return route.fulfill({
+        json: pokemonTypeResponse(last, ['test-pokemon', 'test-form']),
+      });
     if (url.pathname.includes('pokemon-species'))
       return route.fulfill({ json: apiSpecies });
     if (url.pathname.includes('evolution-chain'))
@@ -81,9 +85,14 @@ test('таблиця → деталі → Назад: фільтри, тема �
   ).toHaveValue('eev');
   await expect(page.getByRole('combobox')).toHaveValue('normal');
   await expect(
+    page.getByRole('article', {
+      name: 'Записів типу normal в усій базі PokeAPI',
+    }),
+  ).toBeVisible();
+  await expect(
     page.getByRole('textbox', { name: 'Мінімальний HP' }),
   ).toHaveValue('50');
-  expect(requests.length).toBe(initialCount + 3);
+  expect(requests.length).toBe(initialCount + 4);
   await page.getByRole('button', { name: 'Скинути фільтри' }).click();
   await expect(
     page.getByRole('status', { name: 'Кількість результатів' }),
@@ -91,7 +100,7 @@ test('таблиця → деталі → Назад: фільтри, тема �
   await page.getByRole('button', { name: 'HP', exact: true }).click();
   await page.getByRole('button', { name: 'Збільшити кількість' }).click();
   await expect(page.getByLabel('Кількість у команді')).toHaveText('1');
-  expect(requests.length).toBe(initialCount + 3);
+  expect(requests.length).toBe(initialCount + 4);
   expect(errors).toEqual([]);
 });
 
@@ -226,11 +235,26 @@ for (const width of [320, 375, 768, 1280]) {
     for (const theme of ['light', 'dark']) {
       if (theme === 'dark')
         await page.getByRole('button', { name: 'Темна тема' }).click();
+      await expect(
+        page.getByRole('article', {
+          name: 'Розподіл Pokémon за типами у вибірці',
+        }),
+      ).toBeVisible();
       expect(
         await page.evaluate(
           () => document.documentElement.scrollWidth <= window.innerWidth,
         ),
       ).toBe(true);
+      await page.getByRole('combobox').selectOption('fire');
+      await expect(
+        page.getByRole('article', {
+          name: 'Записів типу fire в усій базі PokeAPI',
+        }),
+      ).toBeVisible();
+      expect(
+        await page.evaluate(() => document.documentElement.scrollWidth),
+      ).toBeLessThanOrEqual(width);
+      await page.getByRole('combobox').selectOption('all');
       for (const type of ['Стовпчиковий', 'Лінійний']) {
         await page.getByRole('radio', { name: type }).check();
         await expect(page.getByRole('application')).toBeVisible();
@@ -277,7 +301,7 @@ function averageHp(page: Page) {
 }
 
 for (const type of ['bar', 'line'] as const) {
-  test(`графік ${type}: SVG, tooltip, три фільтри, reset без нових HTTP`, async ({
+  test(`графік ${type}: SVG, tooltip, три фільтри й reset без перезапиту списку`, async ({
     page,
   }) => {
     const errors: string[] = [];
@@ -320,6 +344,11 @@ for (const type of ['bar', 'line'] as const) {
       .getByRole('combobox', { name: 'Тип Pokémon' })
       .selectOption('fire');
     await expect(averageHp(page)).toHaveText('39');
+    await expect(
+      page.getByRole('article', {
+        name: 'Записів типу fire в усій базі PokeAPI',
+      }),
+    ).toBeVisible();
     await page.getByRole('button', { name: 'Скинути фільтри' }).click();
     await page.getByRole('textbox', { name: 'Мінімальний HP' }).fill('50');
     await expect(averageHp(page)).toHaveText('55');
@@ -335,7 +364,10 @@ for (const type of ['bar', 'line'] as const) {
         name: type === 'bar' ? 'Стовпчиковий' : 'Лінійний',
       }),
     ).toBeChecked();
-    expect(requests).toHaveLength(5);
+    expect(requests).toHaveLength(6);
+    expect(requests.filter((path) => path.includes('/type/'))).toEqual([
+      '/api/v2/type/fire',
+    ]);
     expect(errors).toEqual([]);
   });
 }
@@ -372,7 +404,12 @@ test('обране, режим і тема між маршрутами; reload �
     'data-theme',
     'dark',
   );
-  expect(requests).toHaveLength(8);
+  await expect(
+    page.getByRole('article', {
+      name: 'Записів типу normal в усій базі PokeAPI',
+    }),
+  ).toBeVisible();
+  expect(requests).toHaveLength(9);
   await page.getByRole('button', { name: 'Обране: eevee' }).click();
   await page.reload();
   await expect(page.getByRole('table')).toBeVisible();
@@ -385,7 +422,7 @@ test('обране, режим і тема між маршрутами; reload �
   await expect(
     page.getByRole('button', { name: 'Обране: eevee' }),
   ).toHaveAttribute('aria-pressed', 'false');
-  expect(requests).toHaveLength(13);
+  expect(requests).toHaveLength(14);
 });
 
 test('прямі деталі: обране до завантаження списку, видалення клавішею Space та reload', async ({
@@ -454,6 +491,71 @@ test('форма: курсор посередині тексту, валідац
   await expect(
     page.getByRole('status', { name: 'Кількість результатів' }),
   ).toHaveText('Показано 4 із 4');
+});
+
+test('після застосованого пошуку reset і негайний ввід не повертають стару вибірку', async ({
+  page,
+}) => {
+  await mockApi(page);
+  await page.goto('/');
+  const search = page.getByRole('searchbox');
+  const rows = page.getByRole('rowheader');
+  await expect(rows).toHaveCount(4);
+  await page.clock.install({ time: new Date('2026-11-26T12:00:00Z') });
+  await page.clock.pauseAt(new Date('2026-11-26T12:00:01Z'));
+  await search.fill('bulba');
+  await page.clock.runFor(400);
+  await expect(rows).toHaveText(['bulbasaur']);
+  await page.getByRole('button', { name: 'Скинути фільтри' }).click();
+  await expect(search).toHaveValue('');
+  await expect(rows).toHaveCount(4);
+  await search.fill('char');
+  await search.evaluate((input: HTMLInputElement) =>
+    input.setSelectionRange(2, 2),
+  );
+  await expect(rows).toHaveCount(4);
+  await page.clock.runFor(399);
+  await expect(rows).toHaveCount(4);
+  await page.clock.runFor(1);
+  await expect(rows).toHaveText(['charmander']);
+  await expect(search).toBeFocused();
+  expect(
+    await search.evaluate((input: HTMLInputElement) => input.selectionStart),
+  ).toBe(2);
+});
+
+test('локальний і глобальний KPI типу мають різне охоплення та кеш', async ({
+  page,
+}) => {
+  const requests = await mockApi(page);
+  const typeRequests = () => requests.filter((path) => path.includes('/type/'));
+  await page.goto('/');
+  const type = page.getByRole('combobox', { name: 'Тип Pokémon' });
+  const local = page.getByRole('article', { name: 'Pokémon у вибірці' });
+  const global = page.getByRole('article', {
+    name: 'Записів типу poison в усій базі PokeAPI',
+  });
+  const distribution = page.getByRole('article', {
+    name: 'Розподіл Pokémon за типами у вибірці',
+  });
+  await expect(distribution.getByText('poison')).toBeVisible();
+  expect(typeRequests()).toEqual([]);
+  await type.selectOption('poison');
+  await expect(local).toContainText(
+    'Записи типу poison після застосування фільтрів',
+  );
+  await expect(local.locator('.kpi-value')).toHaveText('1');
+  await expect(global.locator('.kpi-value')).toHaveText('2');
+  await page.getByRole('searchbox').fill('char');
+  await expect(local.locator('.kpi-value')).toHaveText('0');
+  await page.getByRole('textbox', { name: 'Мінімальний HP' }).fill('999');
+  await expect(global.locator('.kpi-value')).toHaveText('2');
+  await page.getByRole('button', { name: 'Скинути фільтри' }).click();
+  await expect(global).toHaveCount(0);
+  await expect(distribution).toBeVisible();
+  await type.selectOption('poison');
+  await expect(global.locator('.kpi-value')).toHaveText('2');
+  expect(typeRequests()).toEqual(['/api/v2/type/poison']);
 });
 
 test('дизайн-система: клавіатурний фокус і кольори позначок в обох темах', async ({

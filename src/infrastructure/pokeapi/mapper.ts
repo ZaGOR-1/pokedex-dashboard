@@ -40,6 +40,26 @@ export function parsePokemonList(value: unknown): PokemonListDto {
   return { count: value.count, results: value.results };
 }
 
+export function parsePokemonTypeCount(value: unknown, type: string): number {
+  if (
+    !isObject(value) ||
+    value.name !== type ||
+    !Array.isArray(value.pokemon) ||
+    !value.pokemon.every(
+      (entry: unknown) =>
+        isObject(entry) &&
+        isInteger(entry.slot, 1) &&
+        hasName(entry.pokemon) &&
+        'url' in entry.pokemon &&
+        typeof entry.pokemon.url === 'string' &&
+        entry.pokemon.url.trim() !== '',
+    )
+  ) {
+    throw new Error('PokeAPI повернув некоректну статистику типу Pokémon.');
+  }
+  return value.pokemon.length;
+}
+
 export function parsePokemon(value: unknown): PokemonDto {
   if (
     !isObject(value) ||

@@ -232,6 +232,37 @@ body {
   margin-bottom: 0;
 }
 
+.type-stats {
+  margin-top: var(--space-4);
+}
+
+.type-stats h3 {
+  font-size: var(--text-md);
+}
+
+.type-stats > p:last-child {
+  margin-bottom: 0;
+}
+
+.type-counts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.type-counts li {
+  min-width: 0;
+}
+
+.type-counts .ui-badge {
+  display: inline-block;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
 .dashboard-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) var(--sidebar-width);

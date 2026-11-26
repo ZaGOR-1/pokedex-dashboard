@@ -3,15 +3,19 @@ import { Button } from '../ui/atoms/Button';
 import { Card } from '../ui/molecules/Card';
 import { StatusMessage } from '../ui/molecules/StatusMessage';
 import { getPokemonSummary } from '../domain/pokemon/selectors';
-import type { Pokemon } from '../domain/pokemon/types';
+import type { Pokemon, PokemonTypeFilter } from '../domain/pokemon/types';
+import type { GetPokemonTypeCount } from '../application/pokemon/getPokemonTypeCount';
 import { Counter } from './Counter';
 import { FilteredPokemonList } from './FilteredPokemonList';
 import { KpiCard } from './KpiCard';
 import { PokemonFilterForm } from './PokemonFilterForm';
 import { PokemonStatsWidget } from './PokemonStatsWidget';
+import { PokemonTypeDistribution, PokemonTypeTotal } from './PokemonTypeStats';
 
 interface PokemonDashboardViewProps {
   pokemon: readonly Pokemon[];
+  selectedType: PokemonTypeFilter;
+  getPokemonTypeCount: GetPokemonTypeCount;
   totalCount: number | null;
   loadedCount: number;
   loading: boolean;
@@ -21,6 +25,8 @@ interface PokemonDashboardViewProps {
 
 export function PokemonDashboardView({
   pokemon,
+  selectedType,
+  getPokemonTypeCount,
   totalCount,
   loadedCount,
   loading,
@@ -48,7 +54,11 @@ export function PokemonDashboardView({
           <KpiCard
             title="Pokémon у вибірці"
             value={ready ? summary.total : '—'}
-            description="Записи після застосування фільтрів"
+            description={
+              selectedType === 'all'
+                ? 'Записи після застосування фільтрів'
+                : `Записи типу ${selectedType} після застосування фільтрів`
+            }
           />
           <KpiCard
             title="Типів у вибірці"
@@ -61,6 +71,15 @@ export function PokemonDashboardView({
             description="Серед відфільтрованих Pokémon"
           />
         </div>
+        {selectedType === 'all' ? (
+          ready && <PokemonTypeDistribution pokemon={pokemon} />
+        ) : (
+          <PokemonTypeTotal
+            key={selectedType}
+            type={selectedType}
+            getPokemonTypeCount={getPokemonTypeCount}
+          />
+        )}
         <p className="summary-note small muted">
           KPI вибірки та таблиця враховують однакові відфільтровані записи.
           Загальна кількість записів API не є кількістю окремих видів. Pokémon

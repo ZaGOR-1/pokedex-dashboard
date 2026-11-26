@@ -2,17 +2,21 @@ import { act, fireEvent, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { renderWithProviders } from '../../tests/render';
+import { deferred } from '../../tests/deferred';
 import { apiPokemon } from '../../tests/fixtures/pokeapi';
 import { apiDetails } from '../../tests/fixtures/details';
 import { mapPokemon } from '../infrastructure/pokeapi/mapper';
 import { mapPokemonDetails } from '../infrastructure/pokeapi/detailsMapper';
 import { App } from './App';
 import type { GetPokemonDetails } from '../application/pokemon/getPokemonDetails';
+import type { GetPokemonTypeCount } from '../application/pokemon/getPokemonTypeCount';
 import { useDashboardStore } from './dashboardStore';
 
 afterEach(() => vi.useRealTimers());
 
-async function renderDashboard() {
+async function renderDashboard(
+  getPokemonTypeCount: GetPokemonTypeCount = async () => 10,
+) {
   const loadPokemon = vi.fn(async () => ({
     pokemon: apiPokemon.map(mapPokemon),
     totalCount: 1351,
@@ -26,7 +30,11 @@ async function renderDashboard() {
     evolutionError: null,
   }));
   renderWithProviders(
-    <App loadPokemon={loadPokemon} getPokemonDetails={getPokemonDetails} />,
+    <App
+      loadPokemon={loadPokemon}
+      getPokemonDetails={getPokemonDetails}
+      getPokemonTypeCount={getPokemonTypeCount}
+    />,
   );
   await screen.findByRole('table');
   return { loadPokemon, getPokemonDetails };
@@ -139,6 +147,32 @@ describe('ЛР №5: спільний стан та графіки', () => {
     expect(loadPokemon).toHaveBeenCalledTimes(1);
   });
 
+  it('після reset нове введення не повертає вже застосований пошук', async () => {
+    await renderDashboard();
+    vi.useFakeTimers();
+    const search = screen.getByRole<HTMLInputElement>('searchbox');
+    fireEvent.change(search, { target: { value: 'bulba' } });
+    act(() => vi.advanceTimersByTime(400));
+    expect(chartValue('HP')).toBe('45');
+
+    fireEvent.click(screen.getByRole('button', { name: 'Скинути фільтри' }));
+    expect(search).toHaveValue('');
+    expect(chartValue('HP')).toBe('42,7');
+    search.focus();
+    fireEvent.change(search, { target: { value: 'char' } });
+    search.setSelectionRange(2, 2);
+    act(() => vi.advanceTimersByTime(399));
+    expect(chartValue('HP')).toBe('42,7');
+    expect(
+      within(screen.getByRole('table')).getAllByRole('rowheader'),
+    ).toHaveLength(3);
+    expect(useDashboardStore.getState().filters.search).toBe('char');
+    act(() => vi.advanceTimersByTime(1));
+    expect(chartValue('HP')).toBe('39');
+    expect(search).toHaveFocus();
+    expect(search.selectionStart).toBe(2);
+  });
+
   it('обидва режими використовують однакові значення; порожня вибірка прибирає SVG', async () => {
     const { loadPokemon } = await renderDashboard();
     const user = userEvent.setup();
@@ -184,5 +218,115 @@ describe('ЛР №5: спільний стан та графіки', () => {
       screen.getByRole('button', { name: 'Обране: bulbasaur' }),
     ).toHaveAttribute('aria-pressed', 'true');
     expect(screen.getByRole('radio', { name: 'Лінійний' })).toBeChecked();
+  });
+});
+
+describe('KPI за типом', () => {
+  it('оновлює розподіл за вибіркою без запитів у режимі всіх типів', async () => {
+    const getPokemonTypeCount = vi.fn<GetPokemonTypeCount>();
+    await renderDashboard(getPokemonTypeCount);
+    const distribution = within(
+      screen.getByRole('article', {
+        name: 'Розподіл Pokémon за типами у вибірці',
+      }),
+    );
+    expect(
+      distribution.getAllByRole('listitem').map((item) => item.textContent),
+    ).toEqual(['fire · 1', 'grass · 1', 'poison · 1', 'water · 1']);
+
+    const hp = screen.getByLabelText('Мінімальний HP');
+    fireEvent.change(hp, { target: { value: '45' } });
+    expect(
+      distribution.getAllByRole('listitem').map((item) => item.textContent),
+    ).toEqual(['grass · 1', 'poison · 1']);
+    fireEvent.change(hp, { target: { value: '999' } });
+    expect(distribution.queryByRole('list')).not.toBeInTheDocument();
+    expect(
+      distribution.getByText('У вибірці немає даних про типи.'),
+    ).toBeInTheDocument();
+    expect(getPokemonTypeCount).not.toHaveBeenCalled();
+  });
+
+  it('показує локальні результати під час збою глобального KPI та окремо повторює запит', async () => {
+    const first = deferred<number>();
+    const getPokemonTypeCount = vi
+      .fn<GetPokemonTypeCount>()
+      .mockReturnValueOnce(first.promise)
+      .mockResolvedValueOnce(17);
+    const { loadPokemon } = await renderDashboard(getPokemonTypeCount);
+    const local = within(
+      screen.getByRole('article', { name: 'Pokémon у вибірці' }),
+    );
+    const type = screen.getByLabelText('Тип Pokémon');
+    fireEvent.change(type, { target: { value: 'poison' } });
+    expect(
+      local.getByText('Записи типу poison після застосування фільтрів'),
+    ).toBeInTheDocument();
+    expect(local.getByText('1')).toBeInTheDocument();
+    expect(
+      screen.getByText('Завантаження статистики типу poison…'),
+    ).toBeInTheDocument();
+    await act(async () => first.reject(new Error('HTTP 503')));
+    expect(screen.getByRole('alert')).toHaveTextContent('HTTP 503');
+    expect(screen.getByRole('table')).toBeInTheDocument();
+    expect(chartValue('HP')).toBe('45');
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Повторити запит статистики' }),
+    );
+    const global = within(
+      await screen.findByRole('article', {
+        name: 'Записів типу poison в усій базі PokeAPI',
+      }),
+    );
+    expect(global.getByText('17')).toBeInTheDocument();
+
+    vi.useFakeTimers();
+    fireEvent.change(screen.getByRole('searchbox'), {
+      target: { value: 'char' },
+    });
+    act(() => vi.advanceTimersByTime(400));
+    expect(local.getByText('0')).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText('Мінімальний HP'), {
+      target: { value: '999' },
+    });
+    expect(global.getByText('17')).toBeInTheDocument();
+    expect(
+      getPokemonTypeCount.mock.calls.map(([, selected]) => selected),
+    ).toEqual(['poison', 'poison']);
+    expect(loadPokemon).toHaveBeenCalledTimes(1);
+  });
+
+  it('скасовує запит при швидкій зміні типу та ігнорує старі відповіді', async () => {
+    const fire = deferred<number>();
+    const water = deferred<number>();
+    const getPokemonTypeCount = vi
+      .fn<GetPokemonTypeCount>()
+      .mockReturnValueOnce(fire.promise)
+      .mockReturnValueOnce(water.promise)
+      .mockResolvedValueOnce(19);
+    await renderDashboard(getPokemonTypeCount);
+    const type = screen.getByLabelText('Тип Pokémon');
+    fireEvent.change(type, { target: { value: 'fire' } });
+    fireEvent.change(type, { target: { value: 'water' } });
+    expect(getPokemonTypeCount.mock.calls[0]?.[0].aborted).toBe(true);
+    await act(async () => fire.resolve(99));
+    expect(screen.queryByText('99')).not.toBeInTheDocument();
+    expect(
+      screen.getByText('Завантаження статистики типу water…'),
+    ).toBeInTheDocument();
+    fireEvent.change(type, { target: { value: 'all' } });
+    expect(getPokemonTypeCount.mock.calls[1]?.[0].aborted).toBe(true);
+    fireEvent.change(type, { target: { value: 'fire' } });
+    const global = within(
+      await screen.findByRole('article', {
+        name: 'Записів типу fire в усій базі PokeAPI',
+      }),
+    );
+    await act(async () => water.reject(new Error('Застаріла помилка')));
+    expect(global.getByText('19')).toBeInTheDocument();
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(
+      getPokemonTypeCount.mock.calls.map(([, selected]) => selected),
+    ).toEqual(['fire', 'water', 'fire']);
   });
 });

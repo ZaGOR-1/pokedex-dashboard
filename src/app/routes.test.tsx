@@ -41,6 +41,7 @@ function renderRoute(
       <App
         loadPokemon={loadPokemon}
         getPokemonDetails={createGetPokemonDetails(client.detailsRepository)}
+        getPokemonTypeCount={async () => 10}
       />
     </MemoryRouter>,
   );

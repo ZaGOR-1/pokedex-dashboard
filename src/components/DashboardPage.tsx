@@ -1,8 +1,17 @@
 import { Badge } from '../ui/atoms/Badge';
 import type { LoadPokemon } from '../application/pokemon/loadPokemon';
+import type { GetPokemonTypeCount } from '../application/pokemon/getPokemonTypeCount';
 import { PokemonDashboard } from './PokemonDashboard';
 
-export function DashboardPage({ loadPokemon }: { loadPokemon: LoadPokemon }) {
+interface DashboardPageProps {
+  loadPokemon: LoadPokemon;
+  getPokemonTypeCount: GetPokemonTypeCount;
+}
+
+export function DashboardPage({
+  loadPokemon,
+  getPokemonTypeCount,
+}: DashboardPageProps) {
   return (
     <>
       <section className="intro" aria-labelledby="page-title">
@@ -22,7 +31,10 @@ export function DashboardPage({ loadPokemon }: { loadPokemon: LoadPokemon }) {
           першу подорож.
         </p>
       </section>
-      <PokemonDashboard loadPokemon={loadPokemon} />
+      <PokemonDashboard
+        loadPokemon={loadPokemon}
+        getPokemonTypeCount={getPokemonTypeCount}
+      />
     </>
   );
 }
