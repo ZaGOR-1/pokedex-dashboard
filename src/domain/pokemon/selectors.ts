@@ -30,8 +30,22 @@ export function getPokemonSummary(pokemon: readonly Pokemon[]) {
   return {
     total: pokemon.length,
     typeCount: new Set(pokemon.flatMap((item) => item.types)).size,
-    multiTypeCount: pokemon.filter((item) => item.types.length > 1).length,
+    multiTypeCount: pokemon.filter((item) => new Set(item.types).size > 1)
+      .length,
   };
+}
+
+export function countPokemonByType(pokemon: readonly Pokemon[]) {
+  const counts = new Map<string, number>();
+  for (const item of pokemon) {
+    for (const type of new Set(item.types)) {
+      counts.set(type, (counts.get(type) ?? 0) + 1);
+    }
+  }
+
+  return [...counts]
+    .sort(([first], [second]) => first.localeCompare(second, 'en'))
+    .map(([type, count]) => ({ type, count }));
 }
 
 export function sortPokemon(

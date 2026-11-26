@@ -3,8 +3,9 @@ import type {
   PokemonPage,
 } from '../../application/pokemon/loadPokemon';
 import type { PokemonDetailsRepository } from '../../application/pokemon/getPokemonDetails';
-import type { Pokemon } from '../../domain/pokemon/types';
-import { mapPokemon, parsePokemonList } from './mapper';
+import type { GetPokemonTypeCount } from '../../application/pokemon/getPokemonTypeCount';
+import type { Pokemon, StandardPokemonType } from '../../domain/pokemon/types';
+import { mapPokemon, parsePokemonList, parsePokemonTypeCount } from './mapper';
 import {
   mapEvolutionChain,
   mapEvolutionChainId,
@@ -19,6 +20,7 @@ const missingResource = Symbol('HTTP 404');
 
 export function createPokeApiClient(fetcher: typeof fetch = fetch) {
   let cachedPage: PokemonPage | null = null;
+  const typeCounts = new Map<StandardPokemonType, number>();
 
   async function getJson(
     path: string,
@@ -95,6 +97,18 @@ export function createPokeApiClient(fetcher: typeof fetch = fetch) {
     }
   };
 
+  const getPokemonTypeCount: GetPokemonTypeCount = async (signal, type) => {
+    signal.throwIfAborted();
+    const cachedCount = typeCounts.get(type);
+    if (cachedCount !== undefined) return cachedCount;
+
+    const value = await getJson(`type/${type}`, signal);
+    signal.throwIfAborted();
+    const count = parsePokemonTypeCount(value, type);
+    typeCounts.set(type, count);
+    return count;
+  };
+
   const detailsRepository: PokemonDetailsRepository = {
     async getPokemon(id, signal) {
       const value = await getJson(`pokemon/${id}`, signal, true);
@@ -114,5 +128,5 @@ export function createPokeApiClient(fetcher: typeof fetch = fetch) {
     },
   };
 
-  return { loadPokemon, detailsRepository };
+  return { loadPokemon, detailsRepository, getPokemonTypeCount };
 }

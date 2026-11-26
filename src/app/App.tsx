@@ -1,4 +1,5 @@
 import type { LoadPokemon } from '../application/pokemon/loadPokemon';
+import type { GetPokemonTypeCount } from '../application/pokemon/getPokemonTypeCount';
 import { Route, Routes } from 'react-router';
 import {
   createGetPokemonDetails,
@@ -17,11 +18,13 @@ const defaultGetDetails = createGetPokemonDetails(pokeApi.detailsRepository);
 
 interface AppProps {
   loadPokemon?: LoadPokemon;
+  getPokemonTypeCount?: GetPokemonTypeCount;
   getPokemonDetails?: GetPokemonDetails;
 }
 
 export function App({
   loadPokemon = pokeApi.loadPokemon,
+  getPokemonTypeCount = pokeApi.getPokemonTypeCount,
   getPokemonDetails = defaultGetDetails,
 }: AppProps) {
   return (
@@ -47,7 +50,12 @@ export function App({
           <Routes>
             <Route
               path="/"
-              element={<DashboardPage loadPokemon={loadPokemon} />}
+              element={
+                <DashboardPage
+                  loadPokemon={loadPokemon}
+                  getPokemonTypeCount={getPokemonTypeCount}
+                />
+              }
             />
             <Route
               path="/pokemon/:id"
@@ -62,7 +70,7 @@ export function App({
           <span>Pokédex Analytics · Навчальний проєкт</span>
           <span>
             Pokémon належать їхнім правовласникам ·{' '}
-            <a href="https://pokeapi.co/docs/v2">PokeAPI</a>
+            <a href="https://pokeapi.co/v2/">PokeAPI</a>
           </span>
         </footer>
       </div>

@@ -51,3 +51,16 @@ export const apiPokemon = [
     ],
   },
 ];
+
+export function pokemonTypeResponse(name: string, pokemonNames: string[]) {
+  return {
+    name,
+    pokemon: pokemonNames.map((pokemonName, index) => ({
+      slot: 1,
+      pokemon: {
+        name: pokemonName,
+        url: `https://pokeapi.co/api/v2/pokemon/${index + 1}/`,
+      },
+    })),
+  };
+}

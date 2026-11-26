@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  countPokemonByType,
   filterPokemonByType,
   filterPokemon,
   getPokemonSummary,
@@ -10,6 +11,32 @@ import { mockPokemon } from '../../../tests/fixtures/mockPokemon';
 const pokemon = Object.freeze(
   mockPokemon.filter((item) => [1, 4, 7].includes(item.id)),
 );
+
+describe('countPokemonByType', () => {
+  it('рахує кожен тип один раз на запис і повертає типи за абеткою', () => {
+    const records = Object.freeze([
+      { ...pokemon[0]!, types: Object.freeze(['stellar', 'grass', 'grass']) },
+      { ...pokemon[1]!, types: Object.freeze(['fire', 'stellar']) },
+      { ...pokemon[2]!, types: Object.freeze(['grass']) },
+    ]);
+    const expected = [
+      { type: 'fire', count: 1 },
+      { type: 'grass', count: 2 },
+      { type: 'stellar', count: 2 },
+    ];
+    expect(countPokemonByType(records)).toEqual(expected);
+    expect(countPokemonByType([...records].reverse())).toEqual(expected);
+    expect(records[0]?.types).toEqual(['stellar', 'grass', 'grass']);
+    expect(
+      getPokemonSummary([{ ...pokemon[0]!, types: ['fire', 'fire'] }]),
+    ).toMatchObject({ multiTypeCount: 0 });
+  });
+
+  it('повертає порожній розподіл без записів або без типів', () => {
+    expect(countPokemonByType([])).toEqual([]);
+    expect(countPokemonByType([{ ...pokemon[0]!, types: [] }])).toEqual([]);
+  });
+});
 
 describe('filterPokemon', () => {
   const defaults = { search: '', type: 'all', minHp: null } as const;

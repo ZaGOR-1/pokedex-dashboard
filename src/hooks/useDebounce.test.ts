@@ -64,4 +64,21 @@ describe('useDebounce', () => {
     unmount();
     expect(vi.getTimerCount()).toBe(0);
   });
+
+  it('негайно застосовує порожнє значення та скасовує незавершений таймер', () => {
+    const { result, rerender } = renderHook(
+      ({ value }) => useDebounce(value, 400, value === ''),
+      { initialProps: { value: 'bulba' } },
+    );
+    rerender({ value: 'saur' });
+    act(() => vi.advanceTimersByTime(250));
+    rerender({ value: '' });
+    expect(result.current).toBe('');
+    expect(vi.getTimerCount()).toBe(0);
+    rerender({ value: 'char' });
+    act(() => vi.advanceTimersByTime(399));
+    expect(result.current).toBe('');
+    act(() => vi.advanceTimersByTime(1));
+    expect(result.current).toBe('char');
+  });
 });

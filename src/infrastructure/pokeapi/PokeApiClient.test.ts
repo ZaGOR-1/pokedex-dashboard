@@ -1,9 +1,86 @@
 import { describe, expect, it, vi } from 'vitest';
 import { deferred } from '../../../tests/deferred';
-import { apiList, apiPokemon } from '../../../tests/fixtures/pokeapi';
+import {
+  apiList,
+  apiPokemon,
+  pokemonTypeResponse,
+} from '../../../tests/fixtures/pokeapi';
 import { createPokeApiClient } from './PokeApiClient';
 
 const response = (data: unknown) => new Response(JSON.stringify(data));
+
+describe('PokeApiClient: статистика типу', () => {
+  it('рахує записи з pokemon та окремо кешує кожен тип, включно з нулем', async () => {
+    const fetcher = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(
+        response(pokemonTypeResponse('fire', ['charmander', 'charizard'])),
+      )
+      .mockResolvedValueOnce(response(pokemonTypeResponse('water', [])));
+    const { getPokemonTypeCount } = createPokeApiClient(fetcher);
+    const signal = new AbortController().signal;
+
+    await expect(getPokemonTypeCount(signal, 'fire')).resolves.toBe(2);
+    await expect(getPokemonTypeCount(signal, 'water')).resolves.toBe(0);
+    await expect(getPokemonTypeCount(signal, 'water')).resolves.toBe(0);
+    await expect(getPokemonTypeCount(signal, 'fire')).resolves.toBe(2);
+    expect(fetcher.mock.calls).toEqual([
+      ['https://pokeapi.co/api/v2/type/fire', { signal }],
+      ['https://pokeapi.co/api/v2/type/water', { signal }],
+    ]);
+  });
+
+  it.each([
+    null,
+    { name: 'fire', pokemon: {} },
+    { name: 'fire', pokemon: [{ slot: 0, pokemon: { name: 'charmander' } }] },
+    { name: 'fire', pokemon: [{ slot: 1, pokemon: { name: 'charmander' } }] },
+    pokemonTypeResponse('water', []),
+  ])(
+    'відхиляє некоректну відповідь і дозволяє повторити запит (%j)',
+    async (invalid) => {
+      const fetcher = vi
+        .fn<typeof fetch>()
+        .mockResolvedValueOnce(response(invalid))
+        .mockResolvedValueOnce(
+          response(pokemonTypeResponse('fire', ['charmander'])),
+        );
+      const { getPokemonTypeCount } = createPokeApiClient(fetcher);
+      const signal = new AbortController().signal;
+
+      await expect(getPokemonTypeCount(signal, 'fire')).rejects.toThrow(
+        'некоректну статистику',
+      );
+      await expect(getPokemonTypeCount(signal, 'fire')).resolves.toBe(1);
+      expect(fetcher).toHaveBeenCalledTimes(2);
+    },
+  );
+
+  it('не кешує запит, скасований під час читання відповіді', async () => {
+    const body = deferred<unknown>();
+    const pendingResponse = response(null);
+    const readJson = vi
+      .spyOn(pendingResponse, 'json')
+      .mockReturnValue(body.promise);
+    const fetcher = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(pendingResponse)
+      .mockResolvedValueOnce(
+        response(pokemonTypeResponse('fire', ['charmander'])),
+      );
+    const { getPokemonTypeCount } = createPokeApiClient(fetcher);
+    const controller = new AbortController();
+    const load = getPokemonTypeCount(controller.signal, 'fire');
+    await vi.waitFor(() => expect(readJson).toHaveBeenCalledTimes(1));
+    controller.abort();
+    body.resolve(pokemonTypeResponse('fire', ['charmander', 'charizard']));
+    await expect(load).rejects.toMatchObject({ name: 'AbortError' });
+    await expect(
+      getPokemonTypeCount(new AbortController().signal, 'fire'),
+    ).resolves.toBe(1);
+    expect(fetcher).toHaveBeenCalledTimes(2);
+  });
+});
 
 describe('PokeApiClient', () => {
   it('повторно використовує успішну сторінку, але не кешує помилку', async () => {

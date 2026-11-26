@@ -11,6 +11,7 @@ async function renderList(pokemon: readonly Pokemon[] = mockPokemon) {
   render(
     <PokemonDashboard
       loadPokemon={async () => ({ pokemon, totalCount: 1350 })}
+      getPokemonTypeCount={async () => 10}
     />,
   );
   await screen.findByRole('table');
@@ -156,10 +157,14 @@ describe('PokemonDashboard: фільтри й таблиця', () => {
       within(select).queryByRole('option', { name: 'stellar' }),
     ).not.toBeInTheDocument();
     await user.selectOptions(select, 'grass');
-    expect(screen.getByText('stellar')).toBeInTheDocument();
+    expect(
+      within(screen.getByRole('table')).getByText('stellar'),
+    ).toBeInTheDocument();
     await user.selectOptions(select, 'ice');
     expect(screen.queryByRole('table')).not.toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Скинути фільтри' }));
-    expect(screen.getByText('stellar')).toBeInTheDocument();
+    expect(
+      within(screen.getByRole('table')).getByText('stellar'),
+    ).toBeInTheDocument();
   });
 });

@@ -16,6 +16,7 @@ import { App } from './App';
 
 const page: PokemonPage = { pokemon: mockPokemon, totalCount: 1350 };
 const loadPage: LoadPokemon = async () => page;
+const getPokemonTypeCount = async () => 10;
 const jsonResponse = (data: unknown) => new Response(JSON.stringify(data));
 
 function detailResponse(input: RequestInfo | URL) {
@@ -136,6 +137,13 @@ describe('App: нові типи API', () => {
     render(<App loadPokemon={createPokeApiClient(fetcher).loadPokemon} />);
     const table = await screen.findByRole('table');
     expect(within(table).getByText('stellar')).toHaveClass('ui-badge--neutral');
+    expect(
+      within(
+        screen.getByRole('article', {
+          name: 'Розподіл Pokémon за типами у вибірці',
+        }),
+      ).getByText('stellar'),
+    ).toBeInTheDocument();
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     expectKpi('Pokémon у вибірці', '1');
     expectKpi('Типів у вибірці', '2');
@@ -151,7 +159,12 @@ describe('App: попередні віджети', () => {
   it('зберігає стан теми й лічильника після фільтра та сортування без нових запитів', async () => {
     const user = userEvent.setup();
     const loadPokemon = vi.fn(loadPage);
-    render(<App loadPokemon={loadPokemon} />);
+    render(
+      <App
+        loadPokemon={loadPokemon}
+        getPokemonTypeCount={getPokemonTypeCount}
+      />,
+    );
     await screen.findByRole('table');
     await user.click(
       screen.getByRole('button', { name: 'Збільшити кількість' }),
@@ -188,7 +201,10 @@ describe('PokemonDashboard: життєвий цикл', () => {
     const pending = deferred<PokemonPage>();
     const loadPokemon = vi.fn<LoadPokemon>(() => pending.promise);
     const { unmount, container } = render(
-      <PokemonDashboard loadPokemon={loadPokemon} />,
+      <PokemonDashboard
+        loadPokemon={loadPokemon}
+        getPokemonTypeCount={getPokemonTypeCount}
+      />,
     );
     const signal = loadPokemon.mock.calls[0]![0];
     expect(signal.aborted).toBe(false);
@@ -207,8 +223,18 @@ describe('PokemonDashboard: життєвий цикл', () => {
         pokemon: [mockPokemon[2]!],
         totalCount: 77,
       });
-      const { rerender } = render(<PokemonDashboard loadPokemon={first} />);
-      rerender(<PokemonDashboard loadPokemon={second} />);
+      const { rerender } = render(
+        <PokemonDashboard
+          loadPokemon={first}
+          getPokemonTypeCount={getPokemonTypeCount}
+        />,
+      );
+      rerender(
+        <PokemonDashboard
+          loadPokemon={second}
+          getPokemonTypeCount={getPokemonTypeCount}
+        />,
+      );
       await screen.findByRole('table');
       expect(first.mock.calls[0]![0].aborted).toBe(true);
       await act(async () => {
@@ -229,7 +255,10 @@ describe('PokemonDashboard: життєвий цикл', () => {
       .mockResolvedValueOnce(page);
     render(
       <StrictMode>
-        <PokemonDashboard loadPokemon={loadPokemon} />
+        <PokemonDashboard
+          loadPokemon={loadPokemon}
+          getPokemonTypeCount={getPokemonTypeCount}
+        />
       </StrictMode>,
       { reactStrictMode: true },
     );
